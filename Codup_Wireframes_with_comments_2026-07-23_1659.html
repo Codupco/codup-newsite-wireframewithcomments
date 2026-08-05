@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<title>Codup Website — Lo-Fi Wireframe Prototype</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --paper:#fafaf8; --line:#111; --grey1:#e9e9e6; --grey2:#d6d6d2;
+    --grey3:#bbbbb6; --accent:#94C944; --muted:#6b6b66; --panel:#f1f0ec;
+    --mono: 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:Helvetica,Arial,sans-serif;}
+  a{color:inherit;text-decoration:none;}
+  .app{display:flex;min-height:100vh;}
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:250px;flex:0 0 250px;background:var(--ink);color:#eee;
+    padding:18px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;
+    transition:margin-left .22s ease;
+  }
+  .app.nav-hidden .sidebar{margin-left:-250px;}
+  .sidebar h1{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin:0 0 4px;}
+  .sidebar .tag{font-size:10px;color:#9a9a92;margin-bottom:18px;display:block;}
+  .sb-group{margin-bottom:14px;}
+  .sb-group-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8a8a82;margin:0 0 6px;padding-left:2px;}
+  .sb-link{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12.5px;padding:5px 8px;border-radius:3px;color:#d8d8d2;margin-bottom:2px;cursor:pointer;border-left:2px solid transparent;}
+  .sb-link:hover{background:#2a2a26;color:#fff;}
+  .sb-link.active{background:var(--accent);color:#111;font-weight:bold;border-left:2px solid #111;}
+  .sb-link.hub{font-weight:bold;color:#fff;}
+  .sb-link .sb-label{flex:1;min-width:0;}
+  .sb-link .status{font-size:9px;opacity:.6;margin-left:4px;}
+  .sb-count{
+    flex:0 0 auto;min-width:17px;height:17px;border-radius:9px;background:#c0392b;color:#fff;
+    font-size:9.5px;font-family:var(--mono);display:inline-flex;align-items:center;justify-content:center;
+    padding:0 5px;font-weight:bold;
+  }
+  .sb-link.active .sb-count{background:#111;color:#fff;}
+  .sb-count.all-resolved{background:var(--grey3);color:#111;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    position:sticky;top:0;z-index:5;background:#fff;border-bottom:2px solid var(--line);
+    padding:10px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;
+  }
+  .topbar-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
+  .crumbs{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;}
+  .crumb{font-size:11px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;}
+  .crumb b{color:var(--ink);}
+  .status-pill{font-size:9px;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border:1px solid var(--ink);border-radius:10px;}
+  .topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .cbtn{font-size:11px;border:1.5px solid var(--ink);background:#fff;padding:6px 10px;cursor:pointer;font-weight:bold;white-space:nowrap;font-family:Helvetica,Arial,sans-serif;}
+  .cbtn:hover{background:var(--grey1);}
+  .cbtn.active{background:var(--ink);color:#fff;}
+  .icon-btn{font-size:14px;border:1.5px solid var(--ink);background:#fff;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;line-height:1;flex:0 0 auto;}
+  .icon-btn:hover{background:var(--grey1);}
+  .c-count{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
+
+  /* ---------- GLOBAL SEARCH ---------- */
+  .search-wrap{position:relative;}
+  .search-input{font-size:12px;font-family:inherit;border:1.5px solid var(--ink);padding:6px 26px 6px 10px;width:210px;box-sizing:border-box;}
+  .search-input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+  .search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:13px;display:none;}
+  .search-wrap.has-q .search-clear{display:block;}
+  .search-results{
+    position:absolute;top:36px;right:0;width:430px;max-width:82vw;max-height:70vh;overflow-y:auto;
+    background:#fff;border:1.5px solid var(--ink);box-shadow:4px 4px 0 rgba(0,0,0,.15);z-index:70;display:none;
+  }
+  .search-results.open{display:block;}
+  .sr-empty{padding:16px;font-size:12px;color:var(--muted);}
+  .sr-group-title{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+    padding:8px 12px 4px;border-bottom:1px solid var(--grey2);position:sticky;top:0;background:#fff;}
+  .sr-item{padding:9px 12px;border-bottom:1px solid var(--grey1);cursor:pointer;font-size:12px;line-height:1.4;}
+  .sr-item:hover{background:var(--accent);}
+  .sr-item .sr-page{font-weight:bold;font-size:11px;}
+  .sr-item .sr-kind{font-family:var(--mono);font-size:9px;text-transform:uppercase;color:var(--muted);border:1px solid var(--grey3);padding:1px 5px;margin-left:6px;}
+  .sr-item .sr-snip{color:#333;margin-top:3px;}
+  .sr-item mark{background:#ffe89a;padding:0 1px;}
+
+  .page{padding:28px 34px 70px;max-width:980px;margin:0 auto;}
+
+  /* ---------- WIREFRAME BLOCKS (lo-fi) ---------- */
+  .wf-block{border:1.5px dashed var(--line);margin-bottom:16px;padding:16px 18px;background:#fff;position:relative;}
+  .wf-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    position:absolute;top:-9px;left:12px;background:#fff;padding:0 6px;}
+  .wf-hero{border-style:solid;border-width:2px;padding:34px 26px;background:var(--grey1);}
+  .wf-hero h2{font-size:26px;margin:6px 0 8px;line-height:1.15;}
+  .wf-hero p{font-size:14px;color:#333;max-width:620px;margin:0 0 16px;line-height:1.5;}
+  .navmock{border:1.5px solid var(--line);background:#fff;padding:10px 14px;margin:0;
+    display:flex;justify-content:space-between;align-items:center;font-size:11px;font-family:var(--mono);}
+  .navmock .links{display:flex;gap:14px;color:var(--muted);}
+  .navmock .cta-mini{border:1.5px solid var(--ink);padding:4px 10px;background:var(--ink);color:#fff;font-weight:bold;}
+  .navmock-wrap{background:var(--panel);}
+
+  .btn{display:inline-block;border:2px solid var(--ink);padding:9px 16px;font-size:12.5px;font-weight:bold;
+    margin:4px 8px 4px 0;cursor:pointer;font-family:Helvetica,Arial,sans-serif;}
+  .btn.primary{background:var(--ink);color:#fff;}
+  .btn.secondary{background:#fff;color:var(--ink);}
+  .btn.tertiary{background:#fff;color:var(--muted);border-style:dashed;border-color:var(--grey3);font-weight:normal;}
+
+  .grid{display:grid;gap:12px;margin-top:6px;}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  @media (max-width:760px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr;}}
+
+  .card{border:1.5px solid var(--line);background:var(--grey1);padding:12px;font-size:12px;}
+  .card.link{cursor:pointer;transition:background .12s;}
+  .card.link:hover{background:var(--accent);}
+  .card h4{font-size:12.5px;margin:0 0 4px;text-transform:none;}
+  .card .sub{color:var(--muted);font-size:11px;line-height:1.4;}
+  .card .go{font-size:10px;font-family:var(--mono);margin-top:6px;display:block;color:var(--ink);font-weight:bold;}
+
+  .chip{display:inline-block;border:1px solid var(--ink);background:#fff;font-size:10.5px;padding:3px 9px;margin:0 5px 5px 0;font-family:var(--mono);}
+  .dep{border:1.5px dotted var(--grey3);background:#fff;font-size:11px;color:var(--muted);padding:8px 10px;margin-top:8px;font-family:var(--mono);}
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .flow .step{border:1.5px solid var(--ink);padding:8px 12px;font-size:11px;background:#fff;text-align:center;}
+  .flow .arrow{font-size:16px;color:var(--muted);}
+  .ctaband{border:2px solid var(--ink);background:var(--panel);padding:18px;text-align:center;margin-top:6px;}
+
+  /* ---------- META PANEL ---------- */
+  .meta-divider{margin:44px 0 18px;text-align:center;position:relative;}
+  .meta-divider span{background:var(--paper);padding:0 14px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);position:relative;z-index:1;}
+  .meta-divider::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid var(--grey3);}
+
+  .meta-panel{background:var(--panel);border:1px solid var(--grey2);padding:22px 24px 6px;border-radius:2px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:6px;}
+  @media (max-width:820px){.meta-grid{grid-template-columns:1fr;}}
+  .meta-card{background:#fff;border:1px solid var(--grey2);padding:14px 16px;margin-bottom:16px;}
+  .meta-card h5{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px;
+    display:flex;align-items:center;gap:6px;}
+  .meta-card h5::before{content:"";width:7px;height:7px;background:var(--accent);border:1px solid var(--ink);display:inline-block;}
+  .meta-card p{font-size:12.5px;line-height:1.5;margin:0;color:#222;}
+  .meta-card ul{margin:0;padding-left:16px;font-size:12px;line-height:1.6;color:#222;}
+  .meta-card .kw{display:flex;flex-wrap:wrap;gap:6px;}
+  .kw-pill{font-size:10.5px;font-family:var(--mono);background:var(--grey1);border:1px solid var(--grey3);padding:3px 8px;}
+  .faq-item{margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--grey2);}
+  .faq-item:last-child{border-bottom:none;margin-bottom:0;}
+  .faq-q{font-size:12px;font-weight:bold;margin-bottom:2px;}
+  .faq-a{font-size:11.5px;color:#333;}
+  .proof-row{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;padding:5px 0;border-bottom:1px dotted var(--grey2);}
+  .proof-row:last-child{border-bottom:none;}
+  .proof-status{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;padding:1px 6px;border:1px solid var(--ink);white-space:nowrap;}
+  .status-needed{background:#fff;} .status-verify{background:var(--grey1);} .status-todo{background:#fff8dc;} .status-avail{background:var(--accent);}
+  .link-pill{display:inline-block;font-size:11px;font-family:var(--mono);background:#fff;border:1px solid var(--ink);padding:4px 10px;margin:0 6px 6px 0;cursor:pointer;}
+  .link-pill:hover{background:var(--ink);color:#fff;}
+  .link-pill.plain{cursor:default;color:var(--muted);border-style:dashed;}
+  .link-pill.plain:hover{background:#fff;color:var(--muted);}
+  .oq-item{font-size:12px;padding:5px 0 5px 16px;border-left:2px solid var(--accent);margin-bottom:6px;background:#fff;}
+  .voice-note{font-size:12.5px;font-style:italic;color:#333;}
+  .status-badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:3px 8px;border:1.5px solid var(--ink);text-transform:uppercase;}
+  .sb-BRIEFED{background:var(--accent);}
+  .footer-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:34px;font-family:var(--mono);}
+
+  /* ---------- COMMENTING SYSTEM ---------- */
+  .wf-block, .meta-card{position:relative;}
+  .add-comment-btn{
+    position:absolute;top:6px;left:6px;width:20px;height:20px;border-radius:50%;
+    background:var(--accent);border:1.5px solid var(--ink);font-size:13px;line-height:1;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;
+    transition:opacity .12s;z-index:4;font-weight:bold;
+  }
+  .wf-block:hover .add-comment-btn, .meta-card:hover .add-comment-btn{opacity:1;}
+  .wf-block:hover, .meta-card:hover{outline:2px dashed var(--accent);outline-offset:2px;cursor:copy;}
+  .comment-pin{
+    position:absolute;top:6px;right:6px;min-width:20px;height:20px;border-radius:10px;
+    background:#c0392b;color:#fff;font-size:10.5px;font-family:var(--mono);display:flex;
+    align-items:center;justify-content:center;padding:0 6px;cursor:pointer;z-index:4;font-weight:bold;
+  }
+  .comment-pin.resolved{background:var(--grey3);color:var(--ink);}
+  .comment-form{
+    position:absolute;top:30px;left:6px;width:250px;background:#fff;border:1.5px solid var(--ink);
+    padding:10px;z-index:10;box-shadow:3px 3px 0 rgba(0,0,0,.18);
+  }
+  .comment-form .target-label{font-family:var(--mono);font-size:9.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .comment-form textarea{width:100%;font-size:12px;font-family:inherit;border:1px solid var(--grey3);padding:6px;resize:vertical;min-height:56px;box-sizing:border-box;}
+  .comment-form .row{display:flex;justify-content:flex-end;gap:6px;margin-top:8px;}
+  .comment-form .row .cbtn{font-size:10.5px;padding:5px 9px;}
+
+  /* Push-panel: participates in the flex row so it does NOT overlay the body.
+     Uses width transition; collapses to 0 when closed. On narrow viewports it
+     falls back to a fixed overlay (see media query below). */
+  .comment-panel{
+    flex:0 0 0;width:0;overflow:hidden;background:#fdfdfb;
+    border-left:0 solid var(--ink);
+    position:sticky;top:0;height:100vh;
+    transition:width .2s ease;z-index:60;
+  }
+  .comment-panel.open{flex:0 0 360px;width:360px;border-left:2px solid var(--ink);}
+  .cp-inner{width:360px;height:100vh;overflow-y:auto;padding:18px;box-sizing:border-box;}
+  .cp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .cp-close{cursor:pointer;font-size:16px;border:1.5px solid var(--ink);width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;background:#fff;}
+  .cp-close:hover{background:var(--grey1);}
+  .cp-filterbar{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap;}
+  .cp-chip{font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--ink);background:#fff;padding:3px 8px;cursor:pointer;}
+  .cp-chip.on{background:var(--ink);color:#fff;}
+  .cp-esc-hint{font-family:var(--mono);font-size:9px;color:var(--grey3);}
+
+  @media (max-width:1100px){
+    /* not enough room to push; overlay instead so the body stays usable when closed */
+    .comment-panel{position:fixed;top:0;right:0;height:100vh;flex:none;width:0;border-left:0;box-shadow:none;}
+    .comment-panel.open{width:360px;max-width:88vw;box-shadow:-4px 0 12px rgba(0,0,0,.14);}
+    .cp-inner{width:100%;}
+  }
+
+  .cp-name{font-size:11px;color:var(--muted);margin-bottom:14px;}
+  .cp-name a{text-decoration:underline;cursor:pointer;color:var(--ink);}
+  .cp-empty{font-size:12px;color:var(--muted);line-height:1.5;}
+  .cp-section-title{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);margin:18px 0 8px;padding-bottom:4px;border-bottom:1.5px solid var(--ink);}
+  .site-composer{border:1.5px dashed var(--grey3);padding:10px;margin-bottom:6px;background:#fff;}
+  .site-composer textarea{width:100%;font-size:12px;font-family:inherit;border:1px solid var(--grey3);padding:6px;resize:vertical;min-height:54px;box-sizing:border-box;}
+  .site-composer .row{display:flex;justify-content:flex-end;margin-top:6px;}
+  .thread{border:1px solid var(--grey2);margin-bottom:12px;padding:10px;background:var(--panel);}
+  .thread.resolved{opacity:.55;}
+  .thread .target{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;letter-spacing:.03em;
+    cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .thread .target:hover{color:var(--ink);text-decoration:underline;}
+  .thread .target .jump{font-size:9px;border:1px solid var(--grey3);padding:1px 5px;white-space:nowrap;text-decoration:none;}
+  .thread .target:hover .jump{border-color:var(--ink);background:var(--accent);}
+  @keyframes flashSection{0%{outline-color:var(--accent);background:rgba(148,201,68,.18);}100%{outline-color:transparent;background:transparent;}}
+  .flash-target{outline:2px solid var(--accent);outline-offset:2px;animation:flashSection 1.6s ease-out;}
+  .search-hit{outline:2px solid #ffb300 !important;outline-offset:2px;}
+  .thread .c-item{font-size:12px;margin-bottom:7px;padding-bottom:7px;border-bottom:1px dashed var(--grey2);line-height:1.4;}
+  .thread .c-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .thread .c-author{font-weight:bold;}
+  .thread .c-time{color:var(--muted);font-size:9.5px;margin-left:4px;}
+  .thread .c-text{margin-top:2px;}
+  .thread .c-del{font-size:9.5px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-top:3px;display:inline-block;}
+  .reply-box{display:flex;gap:6px;margin-top:8px;}
+  .reply-box input{flex:1;font-size:11.5px;padding:6px;border:1px solid var(--grey3);box-sizing:border-box;}
+  .thread .resolve-row{margin-top:8px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <nav class="sidebar" id="sidebar"><h1>Codup Website</h1><span class="tag">Lo-fi clickable prototype · 27 briefed pages</span><span class="tag" style="color:#c9c9be;">Exported 7/23/2026, 4:34:06 PM by Asim Bawany</span><div class="sb-group"><div class="sb-group-title">Top of funnel</div><span class="sb-link  " onclick="nav('home')"><span class="sb-label">Home</span></span><span class="sb-link hub " onclick="nav('wwd')"><span class="sb-label">What We Do <span class="status">HUB</span></span></span><span class="sb-link  " onclick="nav('roadmap')"><span class="sb-label">The Operator Roadmap</span></span></div><div class="sb-group"><div class="sb-group-title">Portal &amp; Commerce Solutions</div><span class="sb-link hub " onclick="nav('pcs')"><span class="sb-label">Portal &amp; Commerce Solutions <span class="status">HUB</span></span><span class="sb-count" title="6 open of 6 comments">6</span></span><span class="sb-link  " onclick="nav('dealer')"><span class="sb-label">Dealer &amp; Customer Portals</span><span class="sb-count" title="15 open of 15 comments">15</span></span><span class="sb-link  " onclick="nav('aiorder')"><span class="sb-label">AI Order Automation</span><span class="sb-count" title="5 open of 5 comments">5</span></span><span class="sb-link  " onclick="nav('b2becom')"><span class="sb-label">B2B eCommerce Development</span><span class="sb-count" title="2 open of 2 comments">2</span></span><span class="sb-link  " onclick="nav('configurator')"><span class="sb-label">Product Configurator (CPQ)</span><span class="sb-count" title="4 open of 4 comments">4</span></span></div><div class="sb-group"><div class="sb-group-title">Commerce Platforms</div><span class="sb-link hub " onclick="nav('platforms')"><span class="sb-label">Platforms (Commerce Platforms) <span class="status">HUB</span></span><span class="sb-count" title="5 open of 5 comments">5</span></span><span class="sb-link  " onclick="nav('shopify')"><span class="sb-label">Shopify Development</span><span class="sb-count" title="5 open of 5 comments">5</span></span><span class="sb-link  " onclick="nav('bigcommerce')"><span class="sb-label">BigCommerce Development</span><span class="sb-count" title="3 open of 3 comments">3</span></span><span class="sb-link  active" onclick="nav('shopware')"><span class="sb-label">Shopware Development</span><span class="sb-count" title="1 open of 1 comment">1</span></span><span class="sb-link  " onclick="nav('woocommerce')"><span class="sb-label">WooCommerce Development</span><span class="sb-count" title="1 open of 1 comment">1</span></span></div><div class="sb-group"><div class="sb-group-title">CMS</div><span class="sb-link hub " onclick="nav('cms')"><span class="sb-label">CMS <span class="status">HUB</span></span></span><span class="sb-link  " onclick="nav('wordpress')"><span class="sb-label">WordPress</span></span><span class="sb-link  " onclick="nav('hubspot')"><span class="sb-label">HubSpot Content Hub</span></span><span class="sb-link  " onclick="nav('webflow')"><span class="sb-label">Webflow</span></span></div><div class="sb-group"><div class="sb-group-title">Custom Platforms &amp; Applications</div><span class="sb-link hub " onclick="nav('cpa')"><span class="sb-label">Custom Platforms &amp; Applications <span class="status">HUB</span></span></span><span class="sb-link  " onclick="nav('customsoftware')"><span class="sb-label">Custom Software</span></span><span class="sb-link  " onclick="nav('saas')"><span class="sb-label">SaaS</span></span><span class="sb-link  " onclick="nav('webapps')"><span class="sb-label">Web Applications</span></span><span class="sb-link  " onclick="nav('mobile')"><span class="sb-label">Mobile Applications</span></span></div><div class="sb-group"><div class="sb-group-title">Cloud, Data &amp; Integration</div><span class="sb-link hub " onclick="nav('cdi')"><span class="sb-label">Cloud, Data &amp; Integration <span class="status">HUB</span></span></span><span class="sb-link  " onclick="nav('infra')"><span class="sb-label">Infrastructure (Cloud)</span></span><span class="sb-link  " onclick="nav('integrations')"><span class="sb-label">Integrations</span></span><span class="sb-link  " onclick="nav('data')"><span class="sb-label">Data, Reporting &amp; Intelligence</span></span></div><div class="sb-group"><div class="sb-group-title">Industries</div><span class="sb-link hub " onclick="nav('industries')"><span class="sb-label">Industries <span class="status">HUB</span></span></span></div></nav>
+  <div class="main">
+    <div class="topbar" id="topbar"><div class="topbar-left">
+       <button class="icon-btn" id="navToggle" title="Show/hide the left panel (\)" onclick="toggleNav()">☰</button>
+       <div class="crumbs">
+         <span class="crumb">What We Do › Platforms › Shopware</span><span class="crumb" style="opacity:.5">·</span><span class="crumb"><b>/solutions/shopware-development</b></span>
+         <span class="status-pill">Draft</span>
+       </div>
+     </div>
+     <div class="topbar-right">
+       <div class="search-wrap" id="searchWrap">
+         <input class="search-input" id="globalSearch" type="text" placeholder="Search body + comments…" oninput="runSearch(this.value)" onfocus="if(this.value)openSearch()" autocomplete="off">
+         <span class="search-clear" onclick="clearSearch()" title="Clear">✕</span>
+         <div class="search-results" id="searchResults"></div>
+       </div>
+       <span class="c-count" id="cCount">47 open (whole site)</span>
+       <button class="cbtn" onclick="toggleCommentPanel()" title="Toggle comments (C)">💬 Comments</button>
+       <button class="cbtn" onclick="copySummary()">Copy summary</button>
+       <button class="cbtn active" onclick="exportCommented()">⬇ Export</button>
+     </div></div>
+    <div class="page" id="page"><div class="wf-block navmock-wrap" data-nav="1" data-cid="nav" data-pid="site"><span class="wf-label">Top Navigation (site-wide)</span>
+    <div class="navmock">
+    <b>codup&lt;/&gt;</b>
+    <div class="links"><span>What We Do</span><span>How We Work</span><span>Industries</span><span>Insights</span><span>About</span></div>
+    <div class="cta-mini">Talk to us</div>
+  </div><div class="add-comment-btn" title="Add a comment on: Top Navigation (site-wide)">+</div></div><div class="wf-block wf-hero" data-cid="b0" data-pid="shopware"><span class="wf-label">Hero</span>
+    <h2>Shopware: commerce built for complexity.</h2><p>Open, B2B-native and agentic-ready — the platform that adapts to your business, implemented by Codup.</p><span class="btn primary">Talk to us about Shopware</span><div class="add-comment-btn" title="Add a comment on: Hero">+</div><div class="comment-pin " title="Open thread — click to view">1</div></div><div class="wf-block" data-cid="b1" data-pid="shopware"><span class="wf-label">Who It's For (ICP)</span><div class="grid cols-3">
+    <div class="card ">
+      <h4>Regulated Industries</h4><div class="sub">Govt, meds, vape/CBD, fintech</div>
+      
+    </div>
+    <div class="card ">
+      <h4>Huge Catalogue / PIM</h4><div class="sub">Automotive, CPG, consumer electronics</div>
+      
+    </div>
+    <div class="card ">
+      <h4>B2B Wholesale &amp; Distributors</h4><div class="sub">Tools, fasteners, industrial, construction</div>
+      
+    </div></div><div class="add-comment-btn" title="Add a comment on: Who It's For (ICP)">+</div></div><div class="wf-block" data-cid="b2" data-pid="shopware"><span class="wf-label">Open &amp; Composable</span><p style="font-size:12.5px;line-height:1.5;margin:4px 0 0;">Headless, API-first, PHP/Symfony core, developer platform (CLI/SDKs), agentic-ready (MCP).</p><div class="add-comment-btn" title="Add a comment on: Open &amp; Composable">+</div></div><div class="wf-block" data-cid="b3" data-pid="shopware"><span class="wf-label">B2B in Three Pillars (on Shopware Core)</span><div class="grid cols-3">
+    <div class="card ">
+      <h4>Backoffice</h4><div class="sub">Finance, complex products &amp; prices, roles</div>
+      
+    </div>
+    <div class="card ">
+      <h4>Sales Focus</h4><div class="sub">Quote/RFQ, e-procurement, Sales Agent</div>
+      
+    </div>
+    <div class="card ">
+      <h4>B2B Command Centre</h4><div class="sub">Approvals, AI buyer agents (roadmap 2027+)</div>
+      
+    </div></div><div class="add-comment-btn" title="Add a comment on: B2B in Three Pillars (on Shopware Core)">+</div></div><div class="wf-block" data-cid="b4" data-pid="shopware"><span class="wf-label">Where Codup Fits</span>Gold Partner; transferable ERP/open-platform/B2B-portal expertise; honest new-partnership framing.<div class="dep">⚑ Shopware case studies — source</div><div class="add-comment-btn" title="Add a comment on: Where Codup Fits">+</div></div><div class="wf-block" data-cid="b5" data-pid="shopware"><span class="wf-label">CTA Band</span><div class="ctaband"><span class="btn primary">Talk to us about Shopware</span><span class="btn secondary" onclick="nav('platforms')">Compare platforms</span></div><div class="add-comment-btn" title="Add a comment on: CTA Band">+</div></div>
+  <div class="meta-divider"><span>Page meta — not visible on the live design</span></div>
+  <div class="meta-panel">
+    <div class="meta-grid">
+      <div class="meta-card" data-cid="m0" data-pid="shopware"><h5>Primary Audience</h5><p>Complex-commerce B2B — regulated industries, huge-catalogue/PIM-heavy, wholesale/distribution — evaluating or on Shopware. Secondary: dev/IT who value open &amp; no lock-in.</p><div class="add-comment-btn" title="Add a comment on: Primary Audience">+</div></div>
+      <div class="meta-card" data-cid="m1" data-pid="shopware"><h5>Buyer Stage</h5><p>Decided on or evaluating Shopware; comparing platforms for genuinely complex needs.</p><div class="add-comment-btn" title="Add a comment on: Buyer Stage">+</div></div>
+      <div class="meta-card" data-cid="m2" data-pid="shopware"><h5>The One Takeaway</h5><p>Shopware is built for complexity — open, B2B-native, agentic-ready, where the platform adapts to your business — and Codup is your implementation partner.</p><div class="add-comment-btn" title="Add a comment on: The One Takeaway">+</div></div>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-card" data-cid="m3" data-pid="shopware"><h5>Conversion Path</h5>
+        <p><b>Primary:</b> Talk to us about Shopware<br>
+        <b>Secondary:</b> Compare platforms (B2B eCommerce / BigCommerce / Shopify)<br>
+        </p>
+      <div class="add-comment-btn" title="Add a comment on: Conversion Path">+</div></div>
+      <div class="meta-card" data-cid="m4" data-pid="shopware"><h5>Voice &amp; Tone</h5><p class="voice-note">'Shopware loves complexity'; open-system advantage + deep B2B + future/agentic; Shopware Gold Partner credibility.</p><div class="add-comment-btn" title="Add a comment on: Voice &amp; Tone">+</div></div>
+      <div class="meta-card" data-cid="m5" data-pid="shopware"><h5>Status</h5><p><span class="status-badge sb-DSGPSS">Draft · Shopware Gold Partner · Session 1 + Shopware assets</span></p><div class="add-comment-btn" title="Add a comment on: Status">+</div></div>
+    </div>
+
+    <div class="meta-card" data-cid="m6" data-pid="shopware"><h5>SEO Keywords</h5><div class="kw"><span class="kw-pill">Shopware development agency</span><span class="kw-pill">Shopware B2B</span><span class="kw-pill">Shopware agency / partner</span><span class="kw-pill">Shopware for regulated industries</span></div><div class="add-comment-btn" title="Add a comment on: SEO Keywords">+</div></div>
+    <div class="meta-card" data-cid="m7" data-pid="shopware"><h5>AEO — questions this page must answer</h5><ul><li>What is Shopware and who is it best for?</li><li>Is Shopware good for complex/regulated/large-catalogue B2B?</li><li>Shopware vs Shopify vs BigCommerce — when does Shopware fit?</li><li>Is Shopware open-source/headless/API-first?</li><li>Is Shopware AI/agentic-ready?</li></ul><div class="add-comment-btn" title="Add a comment on: AEO — questions this page must answer">+</div></div>
+    <div class="meta-card" data-cid="m8" data-pid="shopware"><h5>FAQ block (renders as FAQPage schema)</h5><div class="faq-item"><div class="faq-q">Q: Who is Shopware best for?</div><div class="faq-a">A: Complex commerce — regulated industries, huge/PIM-heavy catalogues, and B2B wholesale &amp; distribution.</div></div><div class="faq-item"><div class="faq-q">Q: Is Shopware open and headless?</div><div class="faq-a">A: Yes — open, API-first and composable, with a PHP/Symfony core and headless storefronts.</div></div><div class="faq-item"><div class="faq-q">Q: Are you a Shopware partner?</div><div class="faq-a">A: Yes — we are a Shopware Gold Partner, with deep complex-commerce, ERP-integration and open-platform expertise.</div></div><div class="add-comment-btn" title="Add a comment on: FAQ block (renders as FAQPage schema)">+</div></div>
+    <div class="meta-card" data-cid="m9" data-pid="shopware"><h5>Proof &amp; visuals — status</h5><div class="proof-row"><span>Shopware Gold Partner badge + case studies</span><span class="proof-status status-needed">Source case studies</span></div><div class="proof-row"><span>ICP visual (segmentation + verticals)</span><span class="proof-status status-verify">Adapt from Shopware deck</span></div><div class="proof-row"><span>Three-pillar diagram</span><span class="proof-status status-verify">Adapt from Shopware deck</span></div><div class="add-comment-btn" title="Add a comment on: Proof &amp; visuals — status">+</div></div>
+    <div class="meta-card" data-cid="m10" data-pid="shopware"><h5>Open questions / dependencies</h5><div class="oq-item">Which Shopware case studies/proof points can we feature?</div><div class="oq-item">How do we handle Shopware's 'simple vs complex' segmentation (we sell Shopify/BigCommerce too)?</div><div class="oq-item">Which roadmap features (2026/2027+) show as upcoming vs omit?</div><div class="oq-item">What merchant-mindset input + Shopware material can Chase provide?</div><div class="add-comment-btn" title="Add a comment on: Open questions / dependencies">+</div></div>
+    <div class="meta-card" data-cid="m11" data-pid="shopware"><h5>Cross-links</h5><span class="link-pill" onclick="nav('bigcommerce')">BigCommerce →</span><span class="link-pill" onclick="nav('b2becom')">B2B eCommerce Development →</span><span class="link-pill" onclick="nav('dealer')">Dealer &amp; Customer Portals →</span><span class="link-pill" onclick="nav('aiorder')">AI Order Automation →</span><div class="add-comment-btn" title="Add a comment on: Cross-links">+</div></div>
+  </div><div class="footer-hint">This is a lo-fi structural prototype — layout, copy and hierarchy for review, not final visual design. Hover any section (including the top nav) for a + to leave a comment.</div></div>
+  </div>
+  <div class="comment-panel open" id="commentPanel"><div class="cp-inner"><div class="cp-head">
+      <h3 style="margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Comments</h3>
+      <span class="cp-close" onclick="toggleCommentPanel(false)" title="Close (Esc)">✕</span>
+    </div>
+    <div class="cp-name">Commenting as <b>Asim Bawany</b> — <a onclick="changeName()">change</a> <span class="cp-esc-hint">· Esc to close</span></div>
+    <div class="cp-filterbar"><span class="cp-chip on" onclick="setPanelFilter('all')">All</span><span class="cp-chip " onclick="setPanelFilter('open')">Open only</span><span class="cp-chip " onclick="setPanelFilter('mine')">Mine</span></div><div class="cp-section-title">🌐 Site-wide — not tied to one page</div><p class="cp-empty" style="margin-top:0">No site-wide comments yet.</p><div class="site-composer">
+      <textarea placeholder="General feedback on the whole site — not about a specific page or section…"></textarea>
+      <div class="row"><button class="cbtn active" type="button" onclick="addSiteComment(this.closest('.site-composer').querySelector('textarea'))">Post site-wide comment</button></div>
+    </div><div class="cp-section-title">📄 This page — Shopware Development</div><div class="thread " id="thread-shopware--b0" style="">
+      <div class="target" onclick="jumpToThread('shopware','b0')" title="Jump to this section">
+        <span>Hero</span><span class="jump">↧ jump</span>
+      </div><div class="c-item">
+        <span class="c-author">Asim Bawany</span><span class="c-time">7/23/2026, 4:59:22 PM</span>
+        <div class="c-text">go ahead and build out this page</div>
+        <span class="c-del" onclick="deleteComment('c17848115628439fbqs')">delete</span>
+      </div><div class="reply-box">
+      <input type="text" placeholder="Reply…" onkeydown="if(event.key==='Enter'){replyTo('shopware','b0','Hero',this)}">
+      <button class="cbtn" onclick="replyTo('shopware','b0','Hero', this.previousElementSibling)">Reply</button>
+    </div>
+    <div class="resolve-row">
+      <button class="cbtn" onclick="resolveThread('shopware','b0',true)">Mark resolved</button>
+    </div>
+  </div></div></div>
+</div>
+<script type="application/json" id="comments-seed">[{"id":"c1783680776536724kv","pageId":"dealer","cid":"b0","label":"Hero","author":"Asim Bawany","text":"'middleware\" Id change this word","ts":1783680776536,"resolved":false},{"id":"c178368081370474ads","pageId":"dealer","cid":"b0","label":"Hero","author":"Asim Bawany","text":"go harder on manual quoting. that is the single biggest pain point for b2b customers.","ts":1783680813704,"resolved":false},{"id":"c1783680876914x19w4","pageId":"dealer","cid":"b2","label":"Before / After Workflow","author":"Asim Bawany","text":"do you imagine this to be a graphic or written section? I think 2 side by side graphics would be a strong visual message.","ts":1783680876914,"resolved":false},{"id":"c178368116033110egx","pageId":"dealer","cid":"b3","label":"What It Does — Feature Grid","author":"Asim Bawany","text":"Daniyal will need to provide full Grid here. \n\nJohn, while designing, this will be a large grid. Can have 10+ items in it. \nShould we have it such that each item has a 1-2 line description? These descriptions can be good for SEO.","ts":1783681160331,"resolved":false},{"id":"c1783681238490gackp","pageId":"dealer","cid":"b4","label":"How It Stays Safe","author":"Asim Bawany","text":"What do you need for this content? Do you already have it?","ts":1783681238490,"resolved":false},{"id":"c1783681491454f83ps","pageId":"dealer","cid":"b2","label":"Before / After Workflow","author":"Asim Bawany","text":"The \"after\" part of this needs to talk about the benefits like reduction in quoting time, reduction in errors and callbacks, etc","ts":1783681491454,"resolved":false},{"id":"c1783681559558kfkpc","pageId":"dealer","cid":"m2","label":"The One Takeaway","author":"Asim Bawany","text":"\"works with your ERP\" is the better line I think rather than de stabilitize. \"works with\" is a broader term that means multiple things at the same time.","ts":1783681559558,"resolved":false},{"id":"c1783681822274ppbd0","pageId":"dealer","cid":"m10","label":"Open questions / dependencies","author":"Asim Bawany","text":"Geoshield, Allterra, Safelife, DMF for naming clients","ts":1783681822274,"resolved":false},{"id":"c1783681894481vmbj4","pageId":"dealer","cid":"m10","label":"Open questions / dependencies","author":"Asim Bawany","text":"B2B Portal is the word to use. \n\nIn copy though we do want to use variations\nDealer, customer, b2b, distributor, contractor, rep, order...\n\nThese are all prefixes used regularly with the word portal. All are used.","ts":1783681894481,"resolved":false},{"id":"c17844072814678le4n","pageId":"dealer","cid":"b1","label":"The Problem","author":"Asim Bawany","text":"Need some numbers here to make this solid. Can pul reliable numbers from the completion sheet by SDR.","ts":1784407281467,"resolved":false},{"id":"c1784409593881lqopd","pageId":"dealer","cid":"b4","label":"How It Stays Safe","author":"Asim Bawany","text":"Things that are important to IT.\n\n- security, governance, zero breakage of functionality or data,. \n\nfor ops and other stake holders as well. its important that nothing breaks and that all the works today keeps functioning. \n\nERP stays source of truth for:\ninventory, pricing, customer data and terms, catalogs and terms, any other business logic. \n\nportal becomes source of truth for: order data, some times prod data, promotions (if applicable) and becomes the overal experience layer.","ts":1784409593881,"resolved":false},{"id":"c1784409648991s93ki","pageId":"dealer","cid":"b5","label":"Proof","author":"Asim Bawany","text":"we also have DMF here if we want to use it. your choice weather to use one or 2.","ts":1784409648992,"resolved":false},{"id":"c1784409944640ooi7n","pageId":"dealer","cid":"b6","label":"CTA Band","author":"Asim Bawany","text":"A demo can be a CTA here. Alternatively, for those who already have a portal, we can offer an \"adoption audit\" if they have low adoption.\n\nAnother thing that comes to mind is that not everyone needs a new portal. Its common for customers wanting to build on their v1. the form here should be a bit dynamic which asks questions specific to dealer portal. We can start by asking whether this is a current project, their primary pain, project objectives, etc. We currently have a typeform that actually does very well in this regard. The key is that the type form is not long and does a really good job pulling out relevant information and giving us a very good idea of budget, intent, etc.","ts":1784409944640,"resolved":false},{"id":"c1784410276705uvcg8","pageId":"dealer","cid":"m8","label":"FAQ block (renders as FAQPage schema)","author":"Asim Bawany","text":"- does it work with our erp\n- does it handle custom pricing and on offs\n- will it work with custom modules\n- our product is very complex, can we sell it online\n- can it handle large transactions of 50k+\n- can it handle terms and alternate payment methods\n- our sales a very relationship based, our customers dont want the portal\n- my sales team resists a portal\n- my customers dont want to use a portal\n- we already have a portal, can you please help us improve it\n- can you build custom portals from scratch","ts":1784410276705,"resolved":false},{"id":"c1784410413912dbxk9","pageId":"dealer","cid":"m10","label":"Open questions / dependencies","author":"Asim Bawany","text":"get the full grid from extend commerce using the battle cards","ts":1784410413912,"resolved":false},{"id":"c1784410468563fsva3","pageId":"aiorder","cid":"b0","label":"Hero","author":"Asim Bawany","text":"a split screen visual here would be great. see proton ai hero to see what I mean.","ts":1784410468563,"resolved":false},{"id":"c1784410702116a2cqm","pageId":"aiorder","cid":"b3","label":"Why Start Here","author":"Asim Bawany","text":"the product data work done here sets up the merchant very nicely to be able to build upon that foundation and be able to build ecommerce or customer portal later on.","ts":1784410702116,"resolved":false},{"id":"c1784410743839ixsb6","pageId":"aiorder","cid":"m2","label":"The One Takeaway","author":"Asim Bawany","text":"fast time to market. can literally go live in weeks.","ts":1784410743839,"resolved":false},{"id":"c1784410861121ecpka","pageId":"aiorder","cid":"m8","label":"FAQ block (renders as FAQPage schema)","author":"Asim Bawany","text":"- can it handle complex prods\n- can it handle configurable prods\n- can it handle large skus\n- can it handle custom pricing\n- can it handle poor hand writing\n- can I handle poor quality paper images\n- where is our data saved\n- do we have access to our data","ts":1784410861121,"resolved":false},{"id":"c1784411015649wmgpa","pageId":"aiorder","cid":"m10","label":"Open questions / dependencies","author":"Asim Bawany","text":"answers to questions\n\n1. Delivery model: dont mention anything about this at all.\n2. Can we cite any pilot or example:no\n3. Confirm primary persona = operations (IT secondary). - correct","ts":1784411015649,"resolved":false},{"id":"c17844111384654ivl1","pageId":"b2becom","cid":"b0","label":"Hero","author":"Asim Bawany","text":"- dont want to position ourselves as advisor. It happens often that when we talk about our value as a thinking partner, we end up the client thinking in advertently that we are only consultants and we do not build end to end solutions.","ts":1784411138465,"resolved":false},{"id":"c17845828745341pfd7","pageId":"configurator","cid":"b0","label":"Hero","author":"Asim Bawany","text":"good line, but we want to say we already have it. this line implies we will build it.","ts":1784582874534,"resolved":false},{"id":"c17845833147502vqhg","pageId":"configurator","cid":"b1","label":"The Problem","author":"Asim Bawany","text":"there are several other problems as well.\n\n- the product data usually does not map cleanly to how most configurators are made. Ours is very robusts and works around their prod data\n- the same problem as above compounds with the way most companies do their assemblies. Usually its quite complex and most configs are unable to handle the complexity.\n- Even when other configurators do find a way to manage complexity, they usually do so very clumsily and build clunky solutions. This is because most configurators are built as rules engines. They focus on business logic before focusin on the data and assembly model. Because of this key architectural mistake, they struggle to create elegant solutions because rules act as guardrails on a slipery road. Our solution focuses on the model first and is ligher on rules. This creates clean data models that mirror their own indigineous data models like for like. This creates clean UX, clean pricing, clean ordering easy maintainability and ultimately clean integrations. Maintainability and Integrations is where the biggest win is for merchants. UX is the biggest win for customers. Leads to higher adoption, higher conversion, higher AOV, less returns.","ts":1784583314750,"resolved":false},{"id":"c17845833456195purh","pageId":"configurator","cid":"b3","label":"The Real Story (per Asim)","author":"Asim Bawany","text":"see my comment based on which you can build this.","ts":1784583345619,"resolved":false},{"id":"c1784583683114zkivr","pageId":"configurator","cid":"b0","label":"Hero","author":"Asim Bawany","text":"Another big USP here is that our CPQ is not just a configurator (although it can be just that. some customers need jsut this.). Our solution is and end to end sales sytems. \n\nIt has full pricing capability baked in. All the usual b2b pricing complexity which most other configurators dont even touch. Others just build the configurator and let customers figure out pricing. Whats supposed to be a clean UX for customers just creates friction elsehwere at checkout becuase the rest of the store cant contend with the compounded complexity of b2b pricing layers on the millions of configurator permutations. Ours handles this, natively. \n\nThen all this pricing and config data is carried over to the quoting functionality cleanly and our system has a full robust quoting engine which can be rep facing, customer facing or inside sales facing. \n\nnote; rep in this context is external reps who are usually rep agencies who sell on behalf of manufacturers.","ts":1784583683114,"resolved":false},{"id":"c1784583918197w3i19","pageId":"b2becom","cid":"b3","label":"Breadth-of-Capabilities Diagram","author":"Asim Bawany","text":"I dont think the diagram makes sense here. It woud make sense on the hub page. \n\nWhat would make sense on this page woud be the top layer of that diagram perhaps. Eitherway, whether we put a visual diagram or copy, the top layer of the capabilities diagram is what we need to talk about here.","ts":1784583918197,"resolved":false},{"id":"c17845842802045zf3y","pageId":"pcs","cid":"b2","label":"Solution Router","author":"Asim Bawany","text":"Iv been thinking about this. the full strategy and advisory copy should live here on the hub page rather than on the b2b ecom page. the b2b ecom page should be more specific and pain point focused. Many customers are coming to us to work on existing portals not just new ones. The b2b ecommerce page caters to those page. \n\nON this hub page, we can have the bigger strategy discussion. see my other comments here.","ts":1784584280204,"resolved":false},{"id":"c17845843194447klc1","pageId":"pcs","cid":"b1","label":"The Unifying Idea","author":"Asim Bawany","text":"I have a big ass diagram I had made here. finally. it is comprehensive and dense.","ts":1784584319444,"resolved":false},{"id":"c178458435623762u4e","pageId":"pcs","cid":"b2","label":"Solution Router","author":"Asim Bawany","text":"The solution router should offer some concrete thinking and statements to help the user make the correct click.","ts":1784584356237,"resolved":false},{"id":"c1784584393234ttegy","pageId":"pcs","cid":"b3","label":"How to Choose","author":"Asim Bawany","text":"This is where we can pitch our consultative thinking. where we say, its ok if you dont know what to do. Just talk to us bro, we got you.","ts":1784584393234,"resolved":false},{"id":"c17845847002956mbm8","pageId":"pcs","cid":"b3","label":"How to Choose","author":"Asim Bawany","text":"Here is an idea. We have a ready made assesment here. We can subtly ask questions on their current situation, give them MCQ style answer choices and pull them into an assessment without calling it an assesment. We do it in sales all the time. Imagine: The page is talking to them. While talking we ask a question. its easy to answer MCQ style. they answer 2-3 of these. the tool (embeded form in the page) says something relevant about the answer they just provided follwed by antoher quesiton. before they know it, we ask for their info and tell them we'll send you our reco based on their answers. I can build it in typeform. but as I type this, I dont want to expand scope.","ts":1784584700295,"resolved":false},{"id":"c1784584783218gmsfx","pageId":"pcs","cid":"b3","label":"How to Choose","author":"Asim Bawany","text":"so for v1, this is where we talk to them about our entire discovery lead approach. This is where it fits. In fact, as I think about this, we can lead them to the discovery offer from here (the one John and Hash have worked on)","ts":1784584783218,"resolved":false},{"id":"c1784590453041xal6c","pageId":"platforms","cid":"b1","label":"The Platform-Agnostic Idea","author":"Asim Bawany","text":"This not a page where ERP should take center stage. \n\nFor people who come to this page, integrations as a whole is just one of several things they might be thinking about.","ts":1784590453041,"resolved":false},{"id":"c17845906584139vhua","pageId":"platforms","cid":"b0","label":"Hero","author":"Asim Bawany","text":"Platform eval is definitely, the thing we need to talk about on this page but not the thing we should lead with. \n\nThis page needs to route to the correct plaform page and so we want to say something here which tells them clearly we know our stuff across these platforms, they just gotta go through the right door to learn more.","ts":1784590658413,"resolved":false},{"id":"c1784590882850m749y","pageId":"platforms","cid":"b1","label":"The Platform-Agnostic Idea","author":"Asim Bawany","text":"On this page we need to make an explicit offer about platform eval services. a v2 of the page can have a self assessment possibly AI powered. \n\nAlthough this sould come after the gates. This is for people who dont alraedy know which platform they are interested in.","ts":1784590882850,"resolved":false},{"id":"c1784590909238iraxi","pageId":"platforms","cid":"b2","label":"Platform Router","author":"Asim Bawany","text":"we need to flaunt certs and badges here for each platform.","ts":1784590909238,"resolved":false},{"id":"c17845911316746yc4m","pageId":"platforms","cid":"m0","label":"Primary Audience","author":"Asim Bawany","text":"This is the hub page and we cannot automatically assume that everyone coming here needs an eval. this page will also get visitors who know exactly what they need/want and on which platform.","ts":1784591131674,"resolved":false},{"id":"c1784591356281npz6l","pageId":"shopify","cid":"b0","label":"Hero","author":"Asim Bawany","text":"engineered beyond the app store.\n\nthis is a good angle but we need more impactful punchy copy that fits our brand voice.","ts":1784591356281,"resolved":false},{"id":"c1784591411797z1vvy","pageId":"shopify","cid":"b2","label":"Where Complexity Is Won — The Four Frontiers","author":"Asim Bawany","text":"There should be clear use cases here of each one.","ts":1784591411797,"resolved":false},{"id":"c1784591631317w77jo","pageId":"shopify","cid":"b0","label":"Hero","author":"Asim Bawany","text":"there is a big miss here.\n\nthere is no mention of actual shopify services we provide here. Things like\n\nSite build and Migrations\nTheme dev\nApp dev\ncustomizations\non going maintainence\ndev retainers\nperformance audit. \n\nThis wasnt discussed on calls but I thought this was a given.","ts":1784591631317,"resolved":false},{"id":"c17845917889587y4j6","pageId":"bigcommerce","cid":"b0","label":"Hero","author":"Asim Bawany","text":"Same miss here as well\n\nthere is no mention of actual shopify services we provide here. Things like Site build and Migrations Theme dev App dev customizations on going maintainence dev retainers performance audit. This wasnt discussed on calls but I thought this was a given.","ts":1784591788958,"resolved":false},{"id":"c1784591944836mpfl5","pageId":"bigcommerce","cid":"m2","label":"The One Takeaway","author":"Asim Bawany","text":"come to Codup when you need bigcommerce to go further than it already does for mid market. With its open APIs we'll push it beyond the limits of what others think possible.","ts":1784591944836,"resolved":false},{"id":"c1784592062024262ig","pageId":"shopify","cid":"b2","label":"Where Complexity Is Won — The Four Frontiers","author":"Asim Bawany","text":"Need to add personalization here.","ts":1784592062024,"resolved":false},{"id":"c1784592296379013vm","pageId":"shopify","cid":"b0","label":"Hero","author":"Asim Bawany","text":"we also need to talk about the concept of unified commerce that Shopify pushes. Customers resonate with it deeply and we need to align. \n\nDTC, Wholesale, POS and now agentic. All from a single platform. beautifully unified. \n\nUnified Commerce isnt just a platform shopify delivers, its a mindset. Its your entire ecosystem designed to work as one, from the ground up. You need a partner who unifies from the ground up rather than stitch and patch and call it unified.","ts":1784592296379,"resolved":false},{"id":"c17845925988396zkmr","pageId":"bigcommerce","cid":"b0","label":"Hero","author":"Asim Bawany","text":"we need to talk about some bigcommerce strengths here. Its a good fit when the following is true:\n\n- products and or selling has significant complexity\n- you need an open structure but also need a managed environment \n- you dont want the hassle to self host and manage env, sec and gov\n- you need scalability and reliability. you trafe off some control because its not open source. you still live in a rented, managed house.\n- a good balance of control, extendibility and managed scaling and not having to manage the env.","ts":1784592598839,"resolved":false},{"id":"c17845927667138rdzw","pageId":"woocommerce","cid":"b0","label":"Hero","author":"Asim Bawany","text":"services missing here as well.\n\n- full build\n- migrate\n- theme dev\n- plugin dev\n- customizations\n- on going maintanence and dev retainers\n- sec audit\n- performance audit (big ,easy foot in the door)\n- performance optimization","ts":1784592766713,"resolved":false},{"id":"c17848115628439fbqs","pageId":"shopware","cid":"b0","label":"Hero","author":"Asim Bawany","text":"go ahead and build out this page","ts":1784811562843,"resolved":false}]</script>
+<script type="application/json" id="export-meta">{"exportedAt":1784811568901,"exportedBy":"Asim Bawany"}</script>
+
+<script>
+/* ============================================================
+   HELPERS TO BUILD WIREFRAME BLOCKS
+   ============================================================ */
+function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+function navmock(){
+  return `<div class="wf-block navmock-wrap" data-nav="1"><span class="wf-label">Top Navigation (site-wide)</span>
+    <div class="navmock">
+    <b>codup&lt;/&gt;</b>
+    <div class="links"><span>What We Do</span><span>How We Work</span><span>Industries</span><span>Insights</span><span>About</span></div>
+    <div class="cta-mini">Talk to us</div>
+  </div></div>`;
+}
+function hero(h1, sub, ctas){
+  return `<div class="wf-block wf-hero"><span class="wf-label">Hero</span>
+    <h2>${h1}</h2><p>${sub}</p>${ctaRow(ctas)}</div>`;
+}
+function ctaRow(ctas){
+  return ctas.map(c=>`<span class="btn ${c.kind}" ${c.to?`onclick="nav('${c.to}')"`:''}>${c.label}</span>`).join('');
+}
+function block(label, inner){
+  return `<div class="wf-block"><span class="wf-label">${label}</span>${inner}</div>`;
+}
+function cards(label, items, cols){
+  cols = cols||items.length;
+  const html = items.map(i=>`
+    <div class="card ${i.to?'link':''}" ${i.to?`onclick="nav('${i.to}')"`:''}>
+      <h4>${i.title}</h4><div class="sub">${i.sub}</div>
+      ${i.to?`<span class="go">→ view page</span>`:''}
+    </div>`).join('');
+  return block(label, `<div class="grid cols-${cols}">${html}</div>`);
+}
+function chips(label, items){
+  return block(label, items.map(i=>`<span class="chip">${i}</span>`).join(''));
+}
+function flow(label, steps){
+  const html = steps.map((s,i)=>`<div class="step">${s}</div>${i<steps.length-1?'<div class="arrow">→</div>':''}`).join('');
+  return block(label, `<div class="flow">${html}</div>`);
+}
+function textBlock(label, text){
+  return block(label, `<p style="font-size:12.5px;line-height:1.5;margin:4px 0 0;">${text}</p>`);
+}
+function dep(text){ return `<div class="dep">⚑ ${text}</div>`; }
+function ctaBand(ctas){
+  return `<div class="wf-block"><span class="wf-label">CTA Band</span><div class="ctaband">${ctaRow(ctas)}</div></div>`;
+}
+
+/* ============================================================
+   META PANEL RENDERER
+   ============================================================ */
+function metaPanel(m){
+  const kw = m.seo.map(k=>`<span class="kw-pill">${k}</span>`).join('');
+  const aeo = m.aeo.map(q=>`<li>${q}</li>`).join('');
+  const faq = m.faq.map(f=>`<div class="faq-item"><div class="faq-q">Q: ${f.q}</div><div class="faq-a">A: ${f.a}</div></div>`).join('');
+  const proof = m.proof.map(p=>`<div class="proof-row"><span>${p.item}</span><span class="proof-status status-${p.status[0]}">${p.status[1]}</span></div>`).join('');
+  const oq = m.openQuestions.map(q=>`<div class="oq-item">${q}</div>`).join('');
+  const links = m.crossLinks.map(l=> l.to
+      ? `<span class="link-pill" onclick="nav('${l.to}')">${l.label} →</span>`
+      : `<span class="link-pill plain">${l.label}</span>`
+    ).join('');
+
+  return `
+  <div class="meta-divider"><span>Page meta — not visible on the live design</span></div>
+  <div class="meta-panel">
+    <div class="meta-grid">
+      <div class="meta-card"><h5>Primary Audience</h5><p>${m.audience}</p></div>
+      <div class="meta-card"><h5>Buyer Stage</h5><p>${m.buyerStage}</p></div>
+      <div class="meta-card"><h5>The One Takeaway</h5><p>${m.oneTakeaway}</p></div>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-card"><h5>Conversion Path</h5>
+        <p><b>Primary:</b> ${m.primaryCTA}<br>
+        ${m.secondaryCTA?`<b>Secondary:</b> ${m.secondaryCTA}<br>`:''}
+        ${m.tertiaryCTA?`<b>Tertiary:</b> ${m.tertiaryCTA}`:''}</p>
+      </div>
+      <div class="meta-card"><h5>Voice &amp; Tone</h5><p class="voice-note">${m.voice}</p></div>
+      <div class="meta-card"><h5>Status</h5><p><span class="status-badge sb-${m.status.replace(/[^A-Z]/g,'')}">${m.status}</span></p></div>
+    </div>
+
+    <div class="meta-card"><h5>SEO Keywords</h5><div class="kw">${kw}</div></div>
+    <div class="meta-card"><h5>AEO — questions this page must answer</h5><ul>${aeo}</ul></div>
+    <div class="meta-card"><h5>FAQ block (renders as FAQPage schema)</h5>${faq}</div>
+    <div class="meta-card"><h5>Proof &amp; visuals — status</h5>${proof}</div>
+    <div class="meta-card"><h5>Open questions / dependencies</h5>${oq}</div>
+    <div class="meta-card"><h5>Cross-links</h5>${links}</div>
+  </div>`;
+}
+
+/* ============================================================
+   PAGE DATA — 27 briefed pages
+   ============================================================ */
+const PAGES = {};
+
+/* ---------------- HOME ---------------- */
+PAGES.home = {
+  title:"Home", url:"/", crumb:"Home",
+  body: navmock() +
+    hero("The truth about what to build. Then we build it.",
+      "We map your operation, hand you a scored roadmap your leadership can fund, and build what it points to. Not sure yet? See where you stand in a few minutes.",
+      [{label:"Get your roadmap", kind:"primary", to:"roadmap"},{label:"See where you stand", kind:"secondary"}]) +
+    cards("Audience Router — four operator doors", [
+      {title:"Manufacturing", sub:"ERP + site don't talk", to:"industries"},
+      {title:"Distribution / Wholesale", sub:"Manual, rep-dependent ordering", to:"industries"},
+      {title:"Retail & Unified", sub:"Online/in-store don't reconcile", to:"industries"},
+      {title:"DTC", sub:"Leaky funnel, stalled growth", to:"industries"}
+    ],4) +
+    block("Offer Band — The Operator Roadmap", `
+      <div class="grid cols-3">
+        <div class="card">Focused — $5K</div><div class="card">Roadmap — $10K</div><div class="card">Roadmap+Prototype — $15K</div>
+      </div>${dep('Three-tier offer graphic — John/design')}`) +
+    cards("Proof Band — one case + testimonial per audience", [
+      {title:"Manufacturing case", sub:"Needed / verify permission"},
+      {title:"Distribution case", sub:"Needed / verify permission"},
+      {title:"Retail case", sub:"Needed / verify permission"},
+      {title:"DTC case", sub:"Needed / verify permission"}
+    ],4) +
+    chips("Insights Preview — three shelves", ["Case Studies","Articles","Podcasts"]) +
+    ctaBand([{label:"Get your roadmap", kind:"primary", to:"roadmap"},{label:"See where you stand", kind:"secondary"},{label:"Talk to us", kind:"tertiary"}]),
+  meta:{
+    audience:"All inbound (organic, Clutch, events, ads) across the four operator segments, plus B2C/DTC and occasional enterprise.",
+    buyerStage:"Mixed — problem-aware to ready-to-move; must serve 'just exploring' and 'ready to buy' on one screen.",
+    oneTakeaway:"Codup finds the truth about what to build, then builds it. Start free (see where you stand) or get the paid roadmap.",
+    primaryCTA:"Get your roadmap (paid) → Operator Roadmap page / booking",
+    secondaryCTA:"See where you stand → segment assessment (choose your segment)",
+    tertiaryCTA:"Talk to us → contact (RFP / general)",
+    voice:"Straight-talking operator; candid not raw at this stage; plate not kitchen; verb-led CTAs; no em dashes.",
+    status:"BRIEFED",
+    seo:["B2B eCommerce agency","ERP eCommerce","digital transformation for manufacturers / distributors"],
+    aeo:["What does Codup do?","How do I know what to build before spending six figures on eCommerce?","What is a paid discovery / roadmap engagement?","Do they work with manufacturers / distributors / retailers / DTC brands?"],
+    faq:[
+      {q:"Do I have to take the assessment first?", a:"No. The assessment is a free way to see where you stand; you can get the Operator Roadmap directly."},
+      {q:"What does the roadmap cost?", a:"Fixed price, from $5K for a focused single-lane roadmap up to $15K for a full roadmap plus a working prototype."},
+      {q:"Do you only work with B2B?", a:"No — we work with manufacturers, distributors, retailers, and DTC brands."}
+    ],
+    proof:[
+      {item:"Audience case cards (one per segment)", status:["needed","Needed / verify"]},
+      {item:"Roadmap success story (GeoShield / Travel Gossip / Altera)", status:["needed","Needed / verify"]},
+      {item:"Three-tier offer graphic", status:["todo","To create"]}
+    ],
+    openQuestions:[
+      "Confirm the site name 'The Operator Roadmap' (vs 'Blueprint'; 'Bootcamp' reserved as campaign codename).",
+      "Confirm the three tiers and prices ($5K/$10K/$15K) for public display.",
+      "Which per-audience case studies, and which quantified metrics, may we publish?",
+      "Confirm enterprise handling within the four-door router (coarse path vs its own)."
+    ],
+    crossLinks:[{label:"Industries (4 segments)",to:"industries"},{label:"The Operator Roadmap",to:"roadmap"},{label:"Platform pages",to:"platforms"},{label:"Insights",to:null}]
+  }
+};
+
+/* ---------------- WHAT WE DO (hub) ---------------- */
+PAGES.wwd = {
+  title:"What We Do", url:"/what-we-do", crumb:"What We Do",
+  body: navmock() +
+    hero("Know what to build. Then build it.",
+      "Two ways in: get a scored roadmap of exactly what to do and in what order, or bring us in to build and run the systems you depend on.",[]) +
+    cards("The Two Doors", [
+      {title:"DOOR A — Figure out what to build", sub:"The Operator Roadmap · 30 days · from $5K", to:"roadmap"},
+      {title:"DOOR B — Build & run what you depend on", sub:"Delivery services (grid below)", to:null}
+    ],2) +
+    cards("Door B — Service Grid", [
+      {title:"Portal & Commerce Solutions", sub:"Storefronts, portals, CPQ, order automation", to:"pcs"},
+      {title:"Commerce Platforms", sub:"Shopify, BigCommerce, Shopware, WooCommerce", to:"platforms"},
+      {title:"CMS", sub:"WordPress, HubSpot Content Hub, Webflow", to:"cms"},
+      {title:"Cloud, Data & Integration", sub:"Infra, integrations, data platform", to:"cdi"},
+      {title:"Custom Platforms & Applications", sub:"Web, SaaS, mobile, bespoke software", to:"cpa"}
+    ],3) +
+    textBlock("How to Choose","Not sure? Start with the free readiness check, or a focused $5K roadmap.") +
+    ctaBand([{label:"Get your roadmap", kind:"primary", to:"roadmap"},{label:"Explore build services", kind:"secondary"},{label:"Talk to us", kind:"tertiary"}]),
+  meta:{
+    audience:"Visitors who know they have a commerce/systems problem but not whether they need advice first or a build — plus answer engines on 'what we do'.",
+    buyerStage:"Orienting.",
+    oneTakeaway:"Two ways in: figure out what to build (the Operator Roadmap), or build and run what you depend on (our delivery services).",
+    primaryCTA:"Get your roadmap (door 1)",
+    secondaryCTA:"Explore the build services (door 2)",
+    tertiaryCTA:"See where you stand (free assessment)",
+    voice:"Orienting, advisory, plate not kitchen; route, do not repeat the child pages.",
+    status:"BRIEFED (new hub — retires 'Digital Transformation')",
+    seo:["B2B eCommerce services","eCommerce strategy and build","ERP commerce consultancy"],
+    aeo:["What services does Codup offer?","Should I start with strategy or build?","What is the difference between the roadmap and the build services?"],
+    faq:[
+      {q:"Do I need the roadmap before you build?", a:"No. If you already know what you need, we build. If you don't, the roadmap makes it clear and fundable first."},
+      {q:"Is the roadmap just a sales pitch for the build?", a:"No — you own everything it produces and can take it to any team."}
+    ],
+    proof:[
+      {item:"Two-door diagram", status:["todo","To create"]},
+      {item:"Service cards", status:["todo","To build"]},
+      {item:"Category-level proof strip", status:["needed","Needed"]}
+    ],
+    openQuestions:[
+      "Confirm What We Do keeps a dedicated hub landing vs. dropdown-only.",
+      "Confirm the five delivery sections and their names (Commerce Platforms rename pending; Cloud, Data & Integration name pending).",
+      "Which category-level proof do we feature on the strip?"
+    ],
+    crossLinks:[{label:"Operator Roadmap",to:"roadmap"},{label:"Portal & Commerce",to:"pcs"},{label:"Commerce Platforms",to:"platforms"},{label:"CMS",to:"cms"},{label:"Cloud, Data & Integration",to:"cdi"},{label:"Custom Platforms & Apps",to:"cpa"},{label:"Industries",to:"industries"}]
+  }
+};
+
+/* ---------------- OPERATOR ROADMAP ---------------- */
+PAGES.roadmap = {
+  title:"The Operator Roadmap", url:"/what-we-do/operator-roadmap", crumb:"What We Do › The Operator Roadmap",
+  body: navmock() +
+    hero("Your blueprint before the big bet.",
+      "A 30-day engagement for operators who know something has to change, and want to know exactly what, why, and in what order before they spend serious money. You leave with a scored roadmap your leadership can actually fund.",
+      [{label:"Get your roadmap", kind:"primary"},{label:"See where you stand", kind:"secondary", to:"industries"}]) +
+    cards("The Mirror — recognise any of these?", [
+      {title:"Orders on spreadsheets", sub:"Quote-to-cash held together by Excel & memory"},
+      {title:"ERP lives in its own world", sub:"Every order/price change keyed twice"},
+      {title:"Reps quoting from their heads", sub:"Pricing walks out the door when they do"},
+      {title:"Leadership won't release budget", sub:"No documented business case"},
+      {title:"Stuck in vendor demo loops", sub:"Nothing written down, nothing moves"},
+      {title:"No one commits without seeing it", sub:"Needs something tangible, not a deck"}
+    ],3) +
+    textBlock("The Real Transformation (the punchline)","Digital transformation is not a product you buy. It is a climb. Each milestone unlocks something real: faster quoting, fewer errors, better visibility, more capacity, room to grow.") +
+    flow("The Engagement — 4 weeks, 4 specialists",["Wk1 The Business","Wk2 Revenue Engine","Wk3 Customer & Partner Experience","Wk4 The Stack"]) +
+    chips("What You Walk Away With",["Technical Audit Report","Business Requirements Document","Roadmap & Adoption Strategy","(Scale tier) Functional Prototype"]) +
+    textBlock("Why This Roadmap Is Different","Every initiative is a scored card: Cost, Benefit, Threat, Opportunity — scored on Importance, Urgency, Tunability, Readiness; tiered Quick Win / Foundation / Transformation.") +
+    block("Choose Your Depth", `<div class="grid cols-3">
+        <div class="card"><h4>Focused — $5K</h4><div class="sub">One lane, one principal</div></div>
+        <div class="card"><h4>Roadmap — $10K</h4><div class="sub">Full 4-week engagement</div></div>
+        <div class="card"><h4>Roadmap+Prototype — $15K</h4><div class="sub">+ live functional prototype</div></div>
+      </div>`) +
+    ctaBand([{label:"Get your roadmap", kind:"primary"},{label:"See where you stand", kind:"secondary", to:"industries"},{label:"Talk to us", kind:"tertiary"}]),
+  meta:{
+    audience:"B2B operators (manufacturers, distributors, wholesalers) and DTC leaders who know something has to change but not what, why, or in what order — and cannot fund a six-figure build without a documented, sequenced case.",
+    buyerStage:"Problem-aware, pre-commitment; needs proof and a fundable plan before spending serious money.",
+    oneTakeaway:"A 30-day engagement that maps your business and hands you a scored roadmap of exactly what to build and in what order — the plan that turns a risky big bet into a fundable climb in growth, capacity, and maturity.",
+    primaryCTA:"Get your roadmap → booking (free 60-min consultation)",
+    secondaryCTA:"See where you stand → free segment assessment",
+    tertiaryCTA:"Talk to us",
+    voice:"Straight-talking operator; candid, earns the right to be blunt; plate not kitchen; value is possibility, not just delivery.",
+    status:"NEW flagship offer page — confirm public name, principals, tiers/prices",
+    seo:["eCommerce discovery","digital transformation roadmap","B2B eCommerce strategy engagement","paid discovery"],
+    aeo:["What is a paid discovery / roadmap engagement?","How do I decide what to build before a six-figure eCommerce project?","What is digital transformation for a manufacturer or distributor, really?","How long does an eCommerce discovery take and what does it cost?"],
+    faq:[
+      {q:"Do I have to take the assessment first?", a:"No — the free assessment is optional; you can book the roadmap directly."},
+      {q:"What is the difference between $10K and $15K?", a:"$15K adds a live, functional prototype of the priority build — not a mockup."},
+      {q:"Do we own the deliverables?", a:"Yes — everything we produce is yours. Build with Codup or take it anywhere."}
+    ],
+    proof:[
+      {item:"Maturity climb diagram", status:["todo","To create"]},
+      {item:"Example scored initiative card", status:["verify","Adapt from framework"]},
+      {item:"30-day engagement schedule graphic", status:["avail","From bootcamp page"]},
+      {item:"Roadmap success story (GeoShield / Travel Gossip / Altera)", status:["needed","Needed / verify"]}
+    ],
+    openQuestions:[
+      "Confirm public name 'The Operator Roadmap' and whether to show pricing.",
+      "Confirm we may name the four principals publicly (Asim, Hasham, John, Wasi).",
+      "Confirm the $5K Focused tier scope and public offer.",
+      "Which roadmap/discovery success may we cite, and what metrics?"
+    ],
+    crossLinks:[{label:"Industries (4 segment assessments)",to:"industries"},{label:"ERP-First Modernization",to:null},{label:"Portal & Commerce",to:"pcs"},{label:"Dealer & Customer Portals",to:"dealer"}]
+  }
+};
+
+/* ---------------- PORTAL & COMMERCE SOLUTIONS (hub) ---------------- */
+PAGES.pcs = {
+  title:"Portal & Commerce Solutions", url:"/solutions/b2b-commerce", crumb:"What We Do › Portal & Commerce Solutions",
+  body: navmock() +
+    hero("B2B commerce, connected to your ERP.",
+      "Storefronts, portals, product configurators and AI order automation — built on your systems, not bolted on. Find the right place to start.",[]) +
+    textBlock("The Unifying Idea","ERP-first, connected systems. Optional framing: eCommerce = before login; portal = after login (usually the same platform)."+dep("connected-layer diagram — how the 4 fit on the ERP")) +
+    cards("Solution Router", [
+      {title:"B2B eCommerce Development", sub:"Platform strategy, full stack advisory", to:"b2becom"},
+      {title:"Dealer & Customer Portals", sub:"Self-serve, kills manual quoting", to:"dealer"},
+      {title:"Product Configurator (CPQ)", sub:"Complex configuration made simple", to:"configurator"},
+      {title:"AI Order Automation", sub:"Any channel → clean ERP entries", to:"aiorder"}
+    ],4) +
+    textBlock("How to Choose","Not ready for a portal? → AI Order Automation. Complex config? → Configurator. Platform strategy? → B2B eCommerce.") +
+    block("Proof Strip", "Category-level logos / case studies"+dep("which proof? — needed")) +
+    ctaBand([{label:"Talk to us about your B2B commerce challenge", kind:"primary"},{label:"Jump to a solution", kind:"secondary"}]),
+  meta:{
+    audience:"Anyone with a B2B commerce / ordering challenge who is not sure which solution they need (leaders, ops, eCommerce/IT) + search & answer engines landing on the category.",
+    buyerStage:"Orienting — knows the problem, not yet the specific solution.",
+    oneTakeaway:"Codup builds the connected B2B commerce layer — storefronts, portals, configurators and order automation — on top of your ERP; this page helps you find the right starting point.",
+    primaryCTA:"Talk to us about your B2B commerce challenge (or jump to the right solution)",
+    secondaryCTA:"Jump to a specific solution (cards)",
+    tertiaryCTA:null,
+    voice:"Orienting and advisory; 'plate not kitchen'; route, do not repeat the child pages.",
+    status:"Draft · router · structure inferred — confirm scope",
+    seo:["B2B commerce solutions","B2B eCommerce & portals","B2B ordering solutions"],
+    aeo:["What is the difference between a B2B storefront, a portal, a product configurator, and order automation?","Where should I start with B2B commerce?","What is a B2B commerce solution?","Do these solutions connect to our ERP?"],
+    faq:[
+      {q:"What is the difference between eCommerce and a portal?", a:"Before login (browsing, checkout) = eCommerce; after login (orders, invoices, AR, reorders) = portal — usually the same platform."},
+      {q:"Where do I start?", a:"With your narrowest, most painful problem — often AI order automation — then grow into a portal and full commerce."},
+      {q:"Do these connect to our ERP?", a:"Yes — the ERP is the system of record across all of them."}
+    ],
+    proof:[
+      {item:"Solution cards (linked grid)", status:["todo","To build"]},
+      {item:"Connected-layer diagram", status:["todo","To create"]},
+      {item:"Category-level proof strip", status:["needed","Needed"]}
+    ],
+    openQuestions:[
+      "KEY: Does this section need its own hub page, or does B2B eCommerce Development act as the de facto hub?",
+      "Section/page name + URL — 'Portal & Commerce Solutions' vs a more search-friendly term?",
+      "Which category-level proof do we feature here?",
+      "How prescriptive should the 'where to start' guidance be?"
+    ],
+    crossLinks:[{label:"B2B eCommerce Development",to:"b2becom"},{label:"Dealer & Customer Portals",to:"dealer"},{label:"Product Configurator (CPQ)",to:"configurator"},{label:"AI Order Automation",to:"aiorder"},{label:"Industries",to:"industries"},{label:"Cloud, Data & Integration",to:"cdi"}]
+  }
+};
+
+/* ---------------- DEALER & CUSTOMER PORTALS ---------------- */
+PAGES.dealer = {
+  title:"Dealer & Customer Portals", url:"/solutions/dealer-portals", crumb:"What We Do › Portal & Commerce › Dealer & Customer Portals",
+  body: navmock() +
+    hero("Stop your team from being human middleware.",
+      "A self-serve dealer & customer portal that kills manual quoting and reorders — integrated with your ERP, not bolted on.",
+      [{label:"Book a Dealer Portal Workflow Review", kind:"primary"}]) +
+    textBlock("The Problem","Manual, error-prone quoting; reps re-keying orders; reorders eat time; spreadsheet/ERP-backdoor workarounds.") +
+    flow("Before / After Workflow",["Calls, emails, re-keying","Dealer self-serve, ERP-safe"]) +
+    chips("What It Does — Feature Grid",["Reorder","Quick order","CSV upload","Invoicing","AR"]) +
+    textBlock("How It Stays Safe","ERP-first integration; what changes vs. what doesn't. Answers IT's 'will this break our ERP' fear.") +
+    block("Proof","Adoption % + effort/error reduction + client story"+dep("GeoShield 'Dealer OS' candidate — verify name + metrics")) +
+    ctaBand([{label:"Book a Dealer Portal Workflow Review", kind:"primary"},{label:"See a before/after example", kind:"secondary"}]),
+  meta:{
+    audience:"Ops, sales-ops, customer service & quoting teams (B2B mfr / distributor / wholesaler). Secondary: IT (validation), Sales leadership.",
+    buyerStage:"Evaluating — actively feeling the pain.",
+    oneTakeaway:"Self-serve portal that kills manual quoting & reorders — without destabilizing your ERP.",
+    primaryCTA:"Book a Dealer Portal Workflow Review",
+    secondaryCTA:"See a before/after workflow example",
+    tertiaryCTA:null,
+    voice:"Operator-direct; 'plate not kitchen' (outcomes, not architecture); efficiency over growth.",
+    status:"Draft · high priority (core wedge) · Session 1",
+    seo:["B2B customer portal","dealer portal software","B2B self-service ordering"],
+    aeo:["What is a B2B dealer / customer portal?","How does a customer portal integrate with an ERP like NetSuite?","How do dealers self-serve reorders, quick orders and quotes?","Dealer portal vs B2B eCommerce storefront — what's the difference?"],
+    faq:[
+      {q:"Does the portal replace our ERP?", a:"No — it sits on top of the ERP, which stays the system of record."},
+      {q:"Can dealers reorder and upload orders by CSV?", a:"Yes — reorder, quick order and CSV upload are standard."},
+      {q:"How long to launch?", a:"Phased; an initial portal typically goes live in [X] weeks. [confirm]"}
+    ],
+    proof:[
+      {item:"Case study — adoption + effort/error metrics", status:["needed","Needed — verify"]},
+      {item:"Before/after workflow diagram", status:["todo","To create"]},
+      {item:"Feature grid scope", status:["verify","Confirm scope"]}
+    ],
+    openQuestions:[
+      "Confirm the exact portal feature scope (reorder, quick order, CSV, invoicing, AR).",
+      "Which dealer-portal client may we name, and which metrics may we publish?",
+      "Is 'Dealer Portal' the productized name to lead with?"
+    ],
+    crossLinks:[{label:"AI Order Automation",to:"aiorder"},{label:"Cloud, Data & Integration",to:"cdi"},{label:"Industries (Mfr & Distribution)",to:"industries"}]
+  }
+};
+
+/* ---------------- AI ORDER AUTOMATION ---------------- */
+PAGES.aiorder = {
+  title:"AI Order Automation", url:"/solutions/ai-order-automation", crumb:"What We Do › Portal & Commerce › AI Order Automation",
+  body: navmock() +
+    hero("Your orders shouldn't need a human to retype them.",
+      "AI turns orders from phone, fax, email, WhatsApp and handwritten notes into clean ERP entries — automatically, with no portal required to start.",
+      [{label:"Book an order-automation assessment", kind:"primary"}]) +
+    chips("The Problem — orders arrive in every format",["Phone","Fax","Email","WhatsApp","SMS","Handwritten notes"]) +
+    flow("How It Works",["1. AI ingests unstructured orders","2. Structures the data","3. Writes to your ERP (or Shopify)"]) +
+    textBlock("Why Start Here","Foot-in-the-door: narrow scope, low lift, fast ROI; no portal required.") +
+    textBlock("Where It Leads","The portal handles the rest later.") +
+    block("Explainer / Proof", "⚠ GAP: no Codup client yet; partnership-delivered. Modeled on Proton.ai page. Do NOT imply owned product."+dep("Delivery model + partnership status — confirm with John/Asim")) +
+    ctaBand([{label:'Book an order-automation assessment — "Can we automate your orders?"', kind:"primary"},{label:"See how it works", kind:"secondary"}]),
+  meta:{
+    audience:"Operations / order-processing teams at B2B mfr / distributor / wholesaler. Secondary: IT (ERP-integration validation).",
+    buyerStage:"Low digital maturity — first foray; wants a quick win, not ready for a full portal.",
+    oneTakeaway:"Turn orders arriving by phone, fax, email, WhatsApp & handwritten notes into clean ERP entries automatically — no portal required to start.",
+    primaryCTA:"Book an order-automation assessment",
+    secondaryCTA:"See how it works (the flow)",
+    tertiaryCTA:null,
+    voice:"Operator-direct; 'plate not kitchen'; quick-win framing; low-risk first step.",
+    status:"Draft · high priority (foot-in-the-door) · NEW page",
+    seo:["AI order automation","automate B2B order entry","email / fax order to ERP"],
+    aeo:["What is AI order automation?","How do you get orders from email, fax or WhatsApp into an ERP automatically?","Do I need a customer portal to automate orders?","AI order automation vs a B2B portal — which should I start with?"],
+    faq:[
+      {q:"Do we need a portal first?", a:"No — AI order automation works on its own and writes directly to your ERP."},
+      {q:"Which order formats can it handle?", a:"Phone, fax, email, WhatsApp, SMS and handwritten notes."},
+      {q:"Where do the orders end up?", a:"In your ERP as the system of record (or Shopify / another system if needed)."}
+    ],
+    proof:[
+      {item:"Flow diagram (channels → AI → ERP)", status:["todo","To create"]},
+      {item:"Explainer modeled on Proton.ai", status:["avail","Reference — John has screenshot"]},
+      {item:"Client proof", status:["needed","GAP — forward-looking; verify any pilot"]}
+    ],
+    openQuestions:[
+      "Delivery model: partnership-delivered (Proton.ai or other) or in-house?",
+      "Partnership status — has John reached out to Proton.ai? What can/can't we say?",
+      "Can we cite any pilot or example at launch, or is it purely forward-looking?",
+      "Confirm primary persona = operations (IT secondary)."
+    ],
+    crossLinks:[{label:"Dealer & Customer Portals (what's next)",to:"dealer"},{label:"Cloud, Data & Integration",to:"cdi"}]
+  }
+};
+
+/* ---------------- B2B eCOMMERCE DEVELOPMENT ---------------- */
+PAGES.b2becom = {
+  title:"B2B eCommerce Development", url:"/solutions/b2b-ecommerce-development", crumb:"What We Do › Portal & Commerce › B2B eCommerce Development",
+  body: navmock() +
+    hero("B2B commerce is more than a storefront.",
+      "Your platform-agnostic advisor for the whole stack — ERP, integrations, data, CRM and CPQ — architected so B2B actually works.",
+      [{label:"Book a discovery / architecture conversation", kind:"primary"}]) +
+    textBlock("What B2B eCommerce Really Is","And why B2C thinking fails: pricing, approvals, account hierarchies, integrations.") +
+    chips("The Full Stack We Advise On",["ERP","Integration","Data","Shipping","Taxes","CRM","CPQ"]) +
+    block("Breadth-of-Capabilities Diagram", "The B2B eCommerce 'layer' (bite-sized pieces; infrastructure sits below)"+dep("ORIGINAL diagram — inspired by, not copied from, the Jason Greenwood iceberg; IP/attribution open Q")) +
+    textBlock("Partner Ecosystem","Layers: commerce / integration / CRM / personalization."+dep("confirmed partner list + logos")) +
+    block("Proof","Complex-B2B examples (DMF as CPQ candidate) + breadth"+dep("verify name + permission")) +
+    ctaBand([{label:"Book a discovery / architecture conversation", kind:"primary"},{label:"Explore our partner ecosystem", kind:"secondary"}]),
+  meta:{
+    audience:"Senior decision-makers — Directors/VPs (eCommerce or marketing) and technical/IT leads (NOT entry-level). Secondary: enterprise leaders evaluating.",
+    buyerStage:"Exploring & platform-agnostic — not yet committed to a platform; wants guidance and breadth.",
+    oneTakeaway:"Codup is the platform-agnostic advisor for complex B2B commerce — we architect the whole stack (ERP, integration, data, CRM, CPQ), not just a storefront.",
+    primaryCTA:"Book a discovery / architecture conversation",
+    secondaryCTA:"Explore our partner ecosystem",
+    tertiaryCTA:null,
+    voice:"Advisory, senior, credible depth; 'plate not kitchen' (outcomes over architecture) but proves it understands the depth. 'Bring us your gnarliest problem.'",
+    status:"Draft · high priority (flagship hub) · Session 1",
+    seo:["B2B eCommerce development","B2B eCommerce agency","B2B commerce architecture"],
+    aeo:["What is B2B eCommerce, and how is it different from B2C?","What does a B2B eCommerce tech stack include?","What is CPQ in B2B eCommerce?","How do I choose the right B2B commerce platform?"],
+    faq:[
+      {q:"Is B2B eCommerce just B2C with login?", a:"No — pricing, account hierarchies, approvals and integrations make B2B fundamentally different."},
+      {q:"What is in a B2B eCommerce tech stack?", a:"Commerce platform plus ERP, integration platform, data, shipping, taxes, CRM and CPQ."},
+      {q:"Do you only build on one platform?", a:"No — we are platform-agnostic and advise on the right fit for your situation."}
+    ],
+    proof:[
+      {item:"Breadth diagram (original, bite-sized)", status:["todo","To create"]},
+      {item:"Partner ecosystem visual + list", status:["needed","Needs partner list"]},
+      {item:"Complex-B2B example (DMF CPQ)", status:["verify","Verify name + permission"]}
+    ],
+    openQuestions:[
+      "Confirm we create our own original breadth diagram (attribution / IP re: Jason Greenwood iceberg).",
+      "Which complex-B2B client/example may we name (DMF as a CPQ?) and what may we publish?",
+      "Which partners do we feature — need the confirmed list / logos.",
+      "Confirm we want to lead with the CPQ framing / terminology."
+    ],
+    crossLinks:[{label:"Shopify",to:"shopify"},{label:"BigCommerce",to:"bigcommerce"},{label:"Shopware",to:"shopware"},{label:"WooCommerce",to:"woocommerce"},{label:"Dealer & Customer Portals",to:"dealer"},{label:"AI Order Automation",to:"aiorder"},{label:"Cloud, Data & Integration",to:"cdi"}]
+  }
+};
+
+/* ---------------- PRODUCT CONFIGURATOR (CPQ) ---------------- */
+PAGES.configurator = {
+  title:"Product Configurator (CPQ)", url:"/solutions/product-configurator", crumb:"What We Do › Portal & Commerce › Product Configurator",
+  body: navmock() +
+    hero("Make configuring a complex product feel simple.",
+      "We build product configurators (CPQ) that hide millions of options behind a clean buying experience — integrated with your ERP.",
+      [{label:"Book a configurator / CPQ scoping conversation", kind:"primary"}]) +
+    textBlock("The Problem","Complex/configurable products break native PDPs & variants; quoting is manual and error-prone (the 'Q' in CPQ).") +
+    textBlock("What We Do","Rules engine, option dependencies, dynamic pricing, simple UX over complex logic; ERP/data-integrated.") +
+    textBlock("The Real Story (per Asim)","The configurator is NOT the story — the story is our ability to contend with complexity and deliver it maintainably. The configurator is one manifestation of that.") +
+    block("Proof","DMF configurator: millions of combinations, simple for the buyer"+dep("Asim's notes; confirm name + 'millions' publishable")+dep("demo / video or interactive example — to create")) +
+    flow("Where It Fits",["ERP","CPQ","Commerce"]) +
+    ctaBand([{label:"Book a configurator / CPQ scoping conversation", kind:"primary"},{label:"See the configurator in action", kind:"secondary"}]),
+  meta:{
+    audience:"Product / eCommerce leaders & technical-IT at brands with complex, configurable products (B2B; some DTC).",
+    buyerStage:"Has a configuration / complex-PDP problem; evaluating who can build it.",
+    oneTakeaway:"We make buying a highly complex product feel simple — taming millions of options behind a clean experience, integrated with your ERP.",
+    primaryCTA:"Book a configurator / CPQ scoping conversation",
+    secondaryCTA:"See the configurator in action (demo/video)",
+    tertiaryCTA:null,
+    voice:"Lead with taming complexity & manageability, NOT a feature brag; 'plate not kitchen'.",
+    status:"Draft · productized from CPQ discussion — confirm as its own page",
+    seo:["product configurator development","CPQ implementation","Shopify product configurator","configure price quote"],
+    aeo:["What is a product configurator / CPQ (Configure-Price-Quote)?","Can Shopify handle complex product configuration?","How do you build a configurator for millions of options?","Product configurator vs CPQ — what is the difference?"],
+    faq:[
+      {q:"What is CPQ?", a:"Configure-Price-Quote — software that configures a complex product, prices it, and produces an accurate quote/order."},
+      {q:"Can Shopify do complex product configuration?", a:"Native variants are limited; complex configuration needs custom configurator work, which is what we build."},
+      {q:"How complex can it get?", a:"Our DMF configurator handles millions of combinations while staying simple for the buyer. [confirm publishable]"}
+    ],
+    proof:[
+      {item:"DMF configurator write-up + screenshots/demo", status:["verify","Asim preparing notes"]},
+      {item:"Configurator demo / interactive example", status:["todo","To create"]},
+      {item:"Diagram: CPQ between ERP and commerce", status:["todo","To create"]}
+    ],
+    openQuestions:[
+      "Confirm Product Configurator gets its OWN page — or lives inside B2B eCommerce / Shopify.",
+      "DMF configurator: may we name it, and is 'millions of combinations' publishable?",
+      "Primary audience — B2B only, or also DTC?",
+      "Lead term: 'Product Configurator' vs 'CPQ' for SEO/clarity?"
+    ],
+    crossLinks:[{label:"B2B eCommerce Development",to:"b2becom"},{label:"Shopify",to:"shopify"},{label:"Dealer & Customer Portals",to:"dealer"},{label:"Industries (Manufacturing)",to:"industries"}]
+  }
+};
+
+/* ---------------- PLATFORMS (hub) ---------------- */
+PAGES.platforms = {
+  title:"Platforms (Commerce Platforms)", url:"/solutions/platforms", crumb:"What We Do › Platforms",
+  body: navmock() +
+    hero("The right platform for your business — not ours.",
+      "Shopify, BigCommerce, Shopware, WooCommerce — we are certified across all of them and recommend by fit, with ERP-first integration underneath. Not sure which? Let us help you choose.",[]) +
+    textBlock("The Platform-Agnostic Idea","We recommend by fit; ERP-first and integration-led underneath whichever platform.") +
+    cards("Platform Router", [
+      {title:"Shopify", sub:"B2C/DTC + complex engineering", to:"shopify"},
+      {title:"BigCommerce", sub:"Open API, B2B native", to:"bigcommerce"},
+      {title:"Shopware", sub:"Complex B2B, regulated", to:"shopware"},
+      {title:"WooCommerce", sub:"Open-source control", to:"woocommerce"}
+    ],4) +
+    textBlock("How to Choose","Balanced, honest comparison across the four."+dep("comparison table — John to draft; open Q re: honesty given we sell all four")) +
+    chips("Partnerships & Certifications", ["Shopify","BigCommerce","Shopware GOLD","WooCommerce SILVER"]) +
+    ctaBand([{label:"Not sure which platform? Talk to us", kind:"primary"},{label:"Jump to a platform", kind:"secondary"}]),
+  meta:{
+    audience:"Anyone choosing — or re-evaluating — a commerce/CMS platform but unsure which fits (eCommerce/marketing leaders, IT) + search/answer engines on platform-comparison terms.",
+    buyerStage:"Platform selection / re-platforming — knows they need a platform, not yet which one.",
+    oneTakeaway:"We are platform-agnostic: we recommend and build on the platform that fits your business — Shopify, BigCommerce, Shopware or WooCommerce — not the one we are tied to.",
+    primaryCTA:"Not sure which platform? Talk to us",
+    secondaryCTA:"Jump to a specific platform (cards)",
+    tertiaryCTA:null,
+    voice:"Orienting, honest, advisory; confident across platforms; route, do not repeat the child pages.",
+    status:"Draft · router · folds in Partnerships & Certifications",
+    seo:["eCommerce platform development","which eCommerce platform","Shopify vs BigCommerce vs Shopware vs WooCommerce","eCommerce platform agency"],
+    aeo:["Which eCommerce platform should I choose?","Should I re-platform — and which platform fits my model?","Can one agency build expertly across all the major platforms?","How do I choose a platform without a biased recommendation?"],
+    faq:[
+      {q:"Which platform is best for B2B vs B2C?", a:"Broadly: Shopify leans B2C/DTC, BigCommerce and Shopware lean B2B, WooCommerce suits open-source-minded teams — but the right answer depends on your specifics."},
+      {q:"Are you tied to one platform?", a:"No — we are platform-agnostic and certified across all the major platforms."},
+      {q:"Can you integrate any of these with our ERP?", a:"Yes — ERP-first integration sits underneath whichever platform you choose."}
+    ],
+    proof:[
+      {item:"Platform cards (linked grid)", status:["todo","To build"]},
+      {item:"Balanced comparison table", status:["todo","To draft"]},
+      {item:"Partnership badges (all four)", status:["verify","Confirm tiers + assets"]}
+    ],
+    openQuestions:[
+      "Confirm renaming 'Platforms' → 'Commerce' (reconcile with Portal & Commerce Solutions) + slug.",
+      "Confirm partner tiers/badges we may display across all four.",
+      "How honest/prescriptive should the comparison be?",
+      "Which cross-platform proof do we feature here?"
+    ],
+    crossLinks:[{label:"Shopify",to:"shopify"},{label:"BigCommerce",to:"bigcommerce"},{label:"Shopware",to:"shopware"},{label:"WooCommerce",to:"woocommerce"},{label:"Cloud, Data & Integration",to:"cdi"},{label:"B2B eCommerce Development",to:"b2becom"},{label:"Industries",to:"industries"}]
+  }
+};
+
+/* ---------------- SHOPIFY ---------------- */
+PAGES.shopify = {
+  title:"Shopify Development", url:"/solutions/shopify-development", crumb:"What We Do › Platforms › Shopify",
+  body: navmock() +
+    hero("Shopify, built beautifully — and engineered beyond the app store.",
+      "We are fluent in the Shopify ecosystem and the hardcore engineers who crack search, configurators, checkout and post-checkout.",
+      [{label:"Book a Shopify build consult", kind:"primary"}]) +
+    chips("Ecosystem Fluency (baseline)", ["Tapcart","Shogun","ShipStation","+ your stack"]) +
+    cards("Where Complexity Is Won — The Four Frontiers", [
+      {title:"Search & Discovery", sub:"Algolia/Elasticsearch — proof: Garden for Wildlife"},
+      {title:"PDP & Configurators", sub:"Custom config — proof: DMF", to:"configurator"},
+      {title:"Checkout", sub:"Custom flows & data [example TBD]"},
+      {title:"Post-checkout", sub:"Proof: Extend (sister co. — frame carefully)"}
+    ],2) +
+    cards("Beautiful by Default — Aesthetic Gallery", [
+      {title:"GeoShield", sub:"Confirm list + permissions"},
+      {title:"Alterna", sub:"Confirm list + permissions"},
+      {title:"DMF", sub:"Confirm list + permissions"},
+      {title:"Garden for Wildlife", sub:"Confirm list + permissions"}
+    ],4) +
+    block("Proof","Named case studies + real-name testimonials"+dep("Shopify Plus Partner badge — confirm tier")) +
+    ctaBand([{label:"Book a Shopify build consult", kind:"primary"},{label:"See our Shopify work", kind:"secondary"}]),
+  meta:{
+    audience:"eCommerce & marketing managers/directors (entry-level through VP) on Shopify — B2C and B2B.",
+    buyerStage:"Already on Shopify, or has decided to be (platform chosen).",
+    oneTakeaway:"Fluent in the Shopify ecosystem (the baseline) AND the hardcore engineers who solve what Shopify can't do natively — search, PDPs/configurators, checkout, post-checkout.",
+    primaryCTA:"Book a Shopify build consult",
+    secondaryCTA:"See our Shopify work (gallery / case studies)",
+    tertiaryCTA:null,
+    voice:"Ecosystem-fluent + hardcore engineering; show, don't tell; aesthetics matter.",
+    status:"Draft · high priority · Session 1",
+    seo:["Shopify development agency","Shopify Plus development","Shopify B2B development","Shopify experts"],
+    aeo:["Can Shopify handle complex search, PDPs and checkout?","Is Shopify Plus good for B2B?","How do you extend Shopify beyond apps?","What can a Shopify development agency build that apps can't?"],
+    faq:[
+      {q:"Can Shopify do complex product configuration?", a:"Native variants are limited; we build custom configurators on the PDP (e.g. DMF)."},
+      {q:"Does Shopify search work for large/complex catalogs?", a:"Native search falls short; we integrate Algolia or Elasticsearch."},
+      {q:"Do you work with Shopify apps or only custom code?", a:"Both — ecosystem fluency is the baseline; we add custom engineering where apps fall short."}
+    ],
+    proof:[
+      {item:"Aesthetic gallery (named stores)", status:["verify","Confirm list + permissions"]},
+      {item:"Search proof — Garden for Wildlife wizard", status:["verify","Asim preparing notes"]},
+      {item:"PDP proof — DMF configurator", status:["verify","Asim preparing notes"]},
+      {item:"Post-checkout — Extend (sister co.)", status:["verify","Frame carefully — not a client"]}
+    ],
+    openQuestions:[
+      "DMF & Garden for Wildlife notes — confirm naming + publishable metrics.",
+      "Which checkout example do we feature? (Asim to find one.)",
+      "Confirm Shopify partner tier/badge to display.",
+      "Confirm Extend framing for post-checkout (sister company, not a client)."
+    ],
+    crossLinks:[{label:"B2B eCommerce Development",to:"b2becom"},{label:"WooCommerce",to:"woocommerce"},{label:"Product Configurator",to:"configurator"},{label:"BigCommerce",to:"bigcommerce"}]
+  }
+};
+
+/* ---------------- BIGCOMMERCE ---------------- */
+PAGES.bigcommerce = {
+  title:"BigCommerce Development", url:"/solutions/bigcommerce-development", crumb:"What We Do › Platforms › BigCommerce",
+  body: navmock() +
+    hero("BigCommerce, built open.",
+      "We use the BigCommerce open API to build the custom B2B commerce you need — natively, without a third-party app soup.",
+      [{label:"Book a BigCommerce consult", kind:"primary"}]) +
+    textBlock("B2B Capabilities (baseline)","Customer hierarchies, custom pricing & quoting — BigCommerce defaults, extended natively where needed.") +
+    textBlock("The Big Idea — Open API (differentiator)","Custom apps & integrations built natively; no third-party spaghetti.") +
+    block("Proof","BigCommerce portfolio + case study + real-name testimonials"+dep("confirm names + metrics + permission; BigCommerce Partner badge — confirm tier")) +
+    textBlock("For IT","Security / governance + our discovery approach + ERP-first (kept shallow here by design).") +
+    ctaBand([{label:"Book a BigCommerce consult", kind:"primary"},{label:"See our BigCommerce work", kind:"secondary"}]),
+  meta:{
+    audience:"B2B eCommerce team (managers, directors, VPs) at manufacturers/distributors/wholesalers, ~$2M–$60M total revenue — safe to assume B2B.",
+    buyerStage:"Already on BigCommerce or has decided on it (not agnostic).",
+    oneTakeaway:"We use BigCommerce's open API to build custom B2B commerce natively — no third-party 'app soup'.",
+    primaryCTA:"Book a BigCommerce consult",
+    secondaryCTA:"See our BigCommerce work",
+    tertiaryCTA:null,
+    voice:"B2B, no B2C dilution; lead with the open-system advantage; do not lead with an app/stack wall.",
+    status:"Draft · high priority · Session 1",
+    seo:["BigCommerce development agency","BigCommerce B2B","BigCommerce developers / agency"],
+    aeo:["Is BigCommerce good for B2B?","BigCommerce vs Shopify for B2B — what's the difference?","What B2B features does BigCommerce have?","Can you build custom functionality on BigCommerce without third-party apps?"],
+    faq:[
+      {q:"Is BigCommerce better than Shopify for B2B?", a:"BigCommerce is open, so complex B2B needs can be built natively via its API rather than stitched together with apps."},
+      {q:"What B2B features are built into BigCommerce?", a:"Customer groups/hierarchies, custom pricing and quoting, and more — extended natively where needed."},
+      {q:"Can you build custom features without lots of apps?", a:"Yes — we use the open API to build natively, avoiding app sprawl."}
+    ],
+    proof:[
+      {item:"BigCommerce portfolio", status:["verify","Confirm + name"]},
+      {item:"BigCommerce B2B case study", status:["verify","Confirm + metrics/permission"]},
+      {item:"Testimonials", status:["needed","Confirm names"]},
+      {item:"Competitor page research", status:["todo","Daniyal — to do"]}
+    ],
+    openQuestions:[
+      "Page name: 'BigCommerce Development' vs just 'BigCommerce'?",
+      "Which BigCommerce portfolio items, case study, testimonials may we name?",
+      "Confirm BigCommerce Partner tier/badge to display.",
+      "Security/Governance page must exist for IT cross-link — confirm in scope."
+    ],
+    crossLinks:[{label:"Cloud, Data & Integration › Infrastructure",to:"infra"},{label:"B2B eCommerce Development",to:"b2becom"},{label:"Shopify (comparison)",to:"shopify"}]
+  }
+};
+
+/* ---------------- SHOPWARE ---------------- */
+PAGES.shopware = {
+  title:"Shopware Development", url:"/solutions/shopware-development", crumb:"What We Do › Platforms › Shopware",
+  body: navmock() +
+    hero("Shopware: commerce built for complexity.",
+      "Open, B2B-native and agentic-ready — the platform that adapts to your business, implemented by Codup.",
+      [{label:"Talk to us about Shopware", kind:"primary"}]) +
+    cards("Who It's For (ICP)", [
+      {title:"Regulated Industries", sub:"Govt, meds, vape/CBD, fintech"},
+      {title:"Huge Catalogue / PIM", sub:"Automotive, CPG, consumer electronics"},
+      {title:"B2B Wholesale & Distributors", sub:"Tools, fasteners, industrial, construction"}
+    ],3) +
+    textBlock("Open & Composable","Headless, API-first, PHP/Symfony core, developer platform (CLI/SDKs), agentic-ready (MCP).") +
+    cards("B2B in Three Pillars (on Shopware Core)", [
+      {title:"Backoffice", sub:"Finance, complex products & prices, roles"},
+      {title:"Sales Focus", sub:"Quote/RFQ, e-procurement, Sales Agent"},
+      {title:"B2B Command Centre", sub:"Approvals, AI buyer agents (roadmap 2027+)"}
+    ],3) +
+    block("Where Codup Fits","Gold Partner; transferable ERP/open-platform/B2B-portal expertise; honest new-partnership framing."+dep("Shopware case studies — source")) +
+    ctaBand([{label:"Talk to us about Shopware", kind:"primary"},{label:"Compare platforms", kind:"secondary", to:"platforms"}]),
+  meta:{
+    audience:"Complex-commerce B2B — regulated industries, huge-catalogue/PIM-heavy, wholesale/distribution — evaluating or on Shopware. Secondary: dev/IT who value open & no lock-in.",
+    buyerStage:"Decided on or evaluating Shopware; comparing platforms for genuinely complex needs.",
+    oneTakeaway:"Shopware is built for complexity — open, B2B-native, agentic-ready, where the platform adapts to your business — and Codup is your implementation partner.",
+    primaryCTA:"Talk to us about Shopware",
+    secondaryCTA:"Compare platforms (B2B eCommerce / BigCommerce / Shopify)",
+    tertiaryCTA:null,
+    voice:"'Shopware loves complexity'; open-system advantage + deep B2B + future/agentic; Shopware Gold Partner credibility.",
+    status:"Draft · Shopware Gold Partner · Session 1 + Shopware assets",
+    seo:["Shopware development agency","Shopware B2B","Shopware agency / partner","Shopware for regulated industries"],
+    aeo:["What is Shopware and who is it best for?","Is Shopware good for complex/regulated/large-catalogue B2B?","Shopware vs Shopify vs BigCommerce — when does Shopware fit?","Is Shopware open-source/headless/API-first?","Is Shopware AI/agentic-ready?"],
+    faq:[
+      {q:"Who is Shopware best for?", a:"Complex commerce — regulated industries, huge/PIM-heavy catalogues, and B2B wholesale & distribution."},
+      {q:"Is Shopware open and headless?", a:"Yes — open, API-first and composable, with a PHP/Symfony core and headless storefronts."},
+      {q:"Are you a Shopware partner?", a:"Yes — we are a Shopware Gold Partner, with deep complex-commerce, ERP-integration and open-platform expertise."}
+    ],
+    proof:[
+      {item:"Shopware Gold Partner badge + case studies", status:["needed","Source case studies"]},
+      {item:"ICP visual (segmentation + verticals)", status:["verify","Adapt from Shopware deck"]},
+      {item:"Three-pillar diagram", status:["verify","Adapt from Shopware deck"]}
+    ],
+    openQuestions:[
+      "Which Shopware case studies/proof points can we feature?",
+      "How do we handle Shopware's 'simple vs complex' segmentation (we sell Shopify/BigCommerce too)?",
+      "Which roadmap features (2026/2027+) show as upcoming vs omit?",
+      "What merchant-mindset input + Shopware material can Chase provide?"
+    ],
+    crossLinks:[{label:"BigCommerce",to:"bigcommerce"},{label:"B2B eCommerce Development",to:"b2becom"},{label:"Dealer & Customer Portals",to:"dealer"},{label:"AI Order Automation",to:"aiorder"}]
+  }
+};
+
+/* ---------------- WOOCOMMERCE ---------------- */
+PAGES.woocommerce = {
+  title:"WooCommerce Development", url:"/solutions/woocommerce-development", crumb:"What We Do › Platforms › WooCommerce",
+  body: navmock() +
+    hero("WooCommerce, done right.",
+      "Open-source control of your store — without inheriting the security, performance and governance headaches. We know WooCommerce inside out.",
+      [{label:"Book a WooCommerce consult", kind:"primary"}]) +
+    textBlock("Open-Source Control","Your site, your destiny; host anywhere, customize, own it; not held hostage to a closed platform.") +
+    textBlock("The Hard Part We Handle","Security, performance, optimization, governance, hardening, infrastructure — the open-source inheritance.") +
+    chips("Embedded in the Ecosystem", ["WP Engine","Pagely","Gravity Forms","+ more"]) +
+    textBlock("eCommerce Capability (general)","Types of WooCommerce work, kept GENERAL — never industry-gated.") +
+    block("Proof","WooCommerce portfolio + case study + testimonial"+dep("confirm + name + permission")) +
+    ctaBand([{label:"Book a WooCommerce consult", kind:"primary"},{label:"See our WooCommerce work", kind:"secondary"}]),
+  meta:{
+    audience:"eCommerce/marketing managers (usually NOT director/VP) at smaller, price-sensitive, open-source-committed companies on WooCommerce. Exception: regulated verticals (cannabis, firearms) — not price-sensitive.",
+    buyerStage:"On WooCommerce; screening for a partner who genuinely 'knows WooCommerce'.",
+    oneTakeaway:"We know WooCommerce deeply — and we tame the governance, security & performance you inherit with open source — so you keep control without the headaches.",
+    primaryCTA:"Book a WooCommerce consult",
+    secondaryCTA:"See our WooCommerce work",
+    tertiaryCTA:null,
+    voice:"Open-source / control + price-and-efficiency mindful + 'we handle the hard parts'; pragmatic, ecosystem-fluent.",
+    status:"Draft · WooCommerce Silver Partner · Session 1",
+    seo:["WooCommerce development agency","WooCommerce developers / experts","WooCommerce security & performance"],
+    aeo:["Is WooCommerce secure and scalable for serious stores?","WooCommerce vs Shopify — what do you gain and give up?","Do I need a developer/partner to run WooCommerce well?","How do you handle WooCommerce security, performance and governance?"],
+    faq:[
+      {q:"Is WooCommerce secure enough for a serious store?", a:"Yes — with proper hardening, performance work and governance, which is exactly what we provide."},
+      {q:"Why choose WooCommerce over Shopify?", a:"Open-source control — host anywhere, customise freely and own your site."},
+      {q:"Do you work across the WooCommerce ecosystem?", a:"Yes — we partner with major hosts and solutions (WP Engine, Pagely, Gravity Forms and more)."}
+    ],
+    proof:[
+      {item:"Wall of logos (hosting + solutions)", status:["todo","John to provide"]},
+      {item:"Partnerships (WP Engine, Pagely, WordPress)", status:["verify","Confirm OK to show"]},
+      {item:"Portfolio / case study / testimonial", status:["verify","Confirm + name + permission"]}
+    ],
+    openQuestions:[
+      "WooCommerce Silver Partner — 'we never advertise, but we are.' Confirm we may show the badge.",
+      "Which WooCommerce portfolio/case study/testimonial do we feature?",
+      "Confirm the wall-of-logos list.",
+      "Confirm WordPress page relationship (broader; cross-link both ways)."
+    ],
+    crossLinks:[{label:"WordPress (broader CMS sibling)",to:"wordpress"},{label:"Shopify (comparison)",to:"shopify"},{label:"BigCommerce (comparison)",to:"bigcommerce"},{label:"Cloud, Data & Integration",to:"cdi"}]
+  }
+};
+
+/* ---------------- CMS (hub) ---------------- */
+PAGES.cms = {
+  title:"CMS", url:"/solutions/cms", crumb:"What We Do › CMS",
+  body: navmock() +
+    hero("The right CMS for your business — built right.",
+      "WordPress, HubSpot Content Hub or Webflow — we build across all three and help you choose the one that fits, then build it properly.",[]) +
+    textBlock("The Agnostic Idea","We build across CMS platforms and recommend by fit, not preference. Three different CMS philosophies.") +
+    cards("CMS Router", [
+      {title:"WordPress", sub:"Control / complex / custom + applications", to:"wordpress"},
+      {title:"HubSpot Content Hub", sub:"Marketing & CRM ecosystem, predictability", to:"hubspot"},
+      {title:"Webflow", sub:"Design-led, fast-launch marketing sites", to:"webflow"}
+    ],3) +
+    textBlock("How to Choose","Balanced guidance: control vs ecosystem vs design & speed."+dep("comparison table — John to draft")) +
+    chips("Partnerships & Credibility", ["WordPress ecosystem / WP Engine","HubSpot Partner","Webflow (coming)"]) +
+    ctaBand([{label:"Not sure which CMS? Talk to us", kind:"primary"},{label:"Jump to a CMS", kind:"secondary"}]),
+  meta:{
+    audience:"Anyone choosing or re-evaluating a CMS but unsure which — marketing/content leaders, IT, founders — plus search/answer engines on CMS-comparison terms.",
+    buyerStage:"CMS selection / re-platforming — knows they need a CMS, not yet which one.",
+    oneTakeaway:"We build across the major CMS platforms — WordPress, HubSpot Content Hub, Webflow — and help you pick the right one for the job, then build it right.",
+    primaryCTA:"Not sure which CMS? Talk to us",
+    secondaryCTA:"Jump to a specific CMS (cards)",
+    tertiaryCTA:null,
+    voice:"Orienting, advisory, honest; route — do not repeat the child pages.",
+    status:"Draft · router — confirm scope",
+    seo:["CMS development agency","which CMS should I use","WordPress vs HubSpot vs Webflow","CMS development"],
+    aeo:["Which CMS should I choose (WordPress vs HubSpot vs Webflow)?","What is the difference between them?","Can one agency build across all the major CMS platforms?","How do I pick a CMS without a biased recommendation?"],
+    faq:[
+      {q:"Which CMS is right for me?", a:"WordPress for control and complex builds; HubSpot Content Hub for marketing/CRM-led teams; Webflow for design-led, fast-launch sites."},
+      {q:"Do you build on all of them?", a:"Yes — WordPress, HubSpot Content Hub and Webflow — so we recommend by fit, not by what we prefer."},
+      {q:"How do you help me choose?", a:"We weigh control vs ecosystem vs design and speed against your goals, and recommend honestly."}
+    ],
+    proof:[
+      {item:"CMS cards (linked grid)", status:["todo","To build"]},
+      {item:"How-to-choose comparison", status:["todo","To draft"]},
+      {item:"Partnership badges (3)", status:["verify","Confirm tiers/timing"]}
+    ],
+    openQuestions:[
+      "Hub name/slug — 'CMS' vs a more search-friendly 'Content Management'.",
+      "Partnership badges across the three (WordPress ecosystem; HubSpot Partner tier; Webflow timing).",
+      "Which cross-CMS proof do we feature here?",
+      "How honest/prescriptive should the comparison be?"
+    ],
+    crossLinks:[{label:"WordPress",to:"wordpress"},{label:"HubSpot Content Hub",to:"hubspot"},{label:"Webflow",to:"webflow"},{label:"Commerce Platforms",to:"platforms"},{label:"Custom Platforms & Apps",to:"cpa"}]
+  }
+};
+
+/* ---------------- WORDPRESS ---------------- */
+PAGES.wordpress = {
+  title:"WordPress", url:"/solutions/wordpress-development", crumb:"What We Do › CMS › WordPress",
+  body: navmock() +
+    hero("We know WordPress like the back of our hand.",
+      "Everything that can be built on it — and even what supposedly can't — we have built. 14 years deep; we started here.",
+      [{label:"Tell us about your project", kind:"primary"}]) +
+    cards("Who It's For — the spectrum", [
+      {title:"Founder MVPs", sub:"$25-30K, 2-3 yr runway"},
+      {title:"Marketing / content teams", sub:"Most common case"},
+      {title:"Enterprise publishing / community", sub:"Multisite (Sitecore→WP)"},
+      {title:"Applications ON WordPress", sub:"As a framework"}
+    ],4) +
+    textBlock("Cost & Control","The open-source promise, done right.") +
+    textBlock("The Hard Truth: Performance & Security","WordPress's two real problems — and our answer: right hosting (WP Engine leads) + monthly maintenance + the differentiator: we are ENGINEERS. We read the code, vet every plugin, curate + configure the stack for YOUR solution, with governance/guardrails/RBAC.") +
+    cards("Proof — customer logo wall + case studies", [
+      {title:"Steelcase", sub:"BuddyPress community"},
+      {title:"Contensys", sub:"Sitecore→WP multisite, 54→36 sites"},
+      {title:"International Emmys", sub:"Confirm + permission"},
+      {title:"Breeze", sub:"Confirm + permission"}
+    ],4) +
+    chips("Ecosystem — tools of the trade", ["WP Engine","BuddyPress","WooCommerce","Gravity Forms","WP Pods"]) +
+    block("Not a Silver Bullet","Just because we can build anything on WordPress doesn't mean you should → links to 'When WordPress is the right choice' article."+dep("article — to write")) +
+    ctaBand([{label:"Tell us about your project", kind:"primary"},{label:"See our WordPress work", kind:"secondary"}]),
+  meta:{
+    audience:"VERY broad, outside our core ICP: founders wanting a robust MVP, marketing/content teams, enterprises on WordPress for publishing/community, application platforms built on WordPress as a framework.",
+    buyerStage:"Already on WordPress (or it is what they know) — NOT platform-shopping; looking for a WordPress expert.",
+    oneTakeaway:'"We know WordPress like the back of our hand — everything that can be built on it, and even what supposedly can\'t, we have built."',
+    primaryCTA:"Tell us about your project",
+    secondaryCTA:"See our WordPress work",
+    tertiaryCTA:null,
+    voice:"Tough-love, brutally honest expert 'in your corner' — confident, a little boastful as earned, but truthful (including: it is NOT a silver bullet).",
+    status:"Draft v2 (rebuilt from Session 3) · deepest history (14 yrs)",
+    seo:["WordPress development agency","enterprise WordPress development","WordPress multisite","custom WordPress development","WordPress performance & security"],
+    aeo:["Can WordPress scale to enterprise?","Is WordPress secure and performant enough for serious sites?","Can you migrate from Sitecore / an enterprise CMS to WordPress?","Can WordPress run as an application, not just a CMS?"],
+    faq:[
+      {q:"Is WordPress secure and fast enough for a serious site?", a:"Yes — with the right hosting (e.g. WP Engine), disciplined maintenance, and an engineering-led, curated stack with governance."},
+      {q:"Can WordPress scale to enterprise?", a:"Yes — we have built and migrated enterprise multisite publishing platforms (e.g. Sitecore to WordPress, 50+ sites)."},
+      {q:"Can you build an application on WordPress, not just a website?", a:"Yes — we use WordPress (and WooCommerce) as an application framework."}
+    ],
+    proof:[
+      {item:"Customer logo wall + case studies", status:["needed","Named, with permission"]},
+      {item:"Ecosystem logos (8-10)", status:["todo","Asim to send"]},
+      {item:"Tenuity case study + partnership outreach", status:["todo","John to draft"]},
+      {item:"'When WordPress is the right choice' article", status:["todo","Insights — to write"]}
+    ],
+    openQuestions:[
+      "WP Engine partner status — 'complicated; short answer yes but complicated.' Resolve what we can claim.",
+      "Which case studies + permission (Steelcase, Contensys, Tenuity, International Emmys, Breeze)?",
+      "Ecosystem logo list (8-10) — Asim to send.",
+      "Confirm WordPress now sits under CMS (moved out of Commerce/Platforms)."
+    ],
+    crossLinks:[{label:"WooCommerce (commerce sibling)",to:"woocommerce"},{label:"Web Applications (WP-as-framework)",to:"webapps"}]
+  }
+};
+
+/* ---------------- HUBSPOT CONTENT HUB ---------------- */
+PAGES.hubspot = {
+  title:"HubSpot Content Hub", url:"/solutions/hubspot-content-hub", crumb:"What We Do › CMS › HubSpot Content Hub",
+  body: navmock() +
+    hero("HubSpot Content Hub, engineered in-house.",
+      "Most HubSpot agencies outsource CMS builds. We are the in-house engineers who build your Content Hub and integrate it with your entire marketing stack — so your site works as one with your CRM.",
+      [{label:"Tell us about your marketing vision", kind:"primary"}]) +
+    textBlock("Predictability Over Control","The marketer's trade-off, named: escape WordPress technical debt (or overpriced enterprise CMS); gain a system that just works.") +
+    block("The Ecosystem Advantage","Talks to your CRM + marketing out of the box."+dep("cost-benefit visual — control ⇄ predictability trade-off — design")) +
+    textBlock("Why Us","In-house engineering + full marketing-stack integration (most agencies outsource Content Hub).") +
+    block("Proof","Our own new site (first Content Hub build, in progress); All Angles; marketing-stack track record."+dep("⚠ never surface 'we haven't done one' — lead on partner + engineering")) +
+    ctaBand([{label:"Tell us about your marketing vision", kind:"primary"},{label:"See how we integrate marketing stacks", kind:"secondary"}]),
+  meta:{
+    audience:"A marketing manager already invested in the HubSpot ecosystem (Marketing/Sales Hub or CRM) now considering adding Content Hub. Technical-ish, hands-on.",
+    buyerStage:"ALREADY in the HubSpot ecosystem — Content Hub is NEVER the entry point; considering 'turning the knob'.",
+    oneTakeaway:"Most HubSpot agencies outsource CMS/Content Hub builds; we are the in-house engineering specialists who build it AND integrate your entire marketing stack.",
+    primaryCTA:"Tell us about your marketing vision",
+    secondaryCTA:"See how we integrate marketing stacks",
+    tertiaryCTA:null,
+    voice:"Marketing-ops / RevOps register; predictability, ecosystem, interoperability; pragmatic. Tough-love honest in a marketing-ops register.",
+    status:"Draft (Session 3) · HubSpot Partner (tier TBD) · new capability",
+    seo:["HubSpot CMS development","HubSpot Content Hub agency","HubSpot CMS developers","HubSpot website development"],
+    aeo:["What is HubSpot Content Hub?","Should I move my site to HubSpot CMS (vs WordPress)?","Do HubSpot agencies build the CMS in-house or outsource it?","Can you integrate Content Hub with my existing marketing stack?"],
+    faq:[
+      {q:"Do you build HubSpot Content Hub in-house?", a:"Yes — unlike most HubSpot agencies, who outsource CMS builds, we have in-house engineering."},
+      {q:"HubSpot Content Hub or WordPress?", a:"WordPress gives maximum control; Content Hub gives predictability and out-of-the-box ecosystem integration."},
+      {q:"Can you integrate Content Hub with our other tools?", a:"Yes — integrating marketing stacks is a core strength."}
+    ],
+    proof:[
+      {item:"Ecosystem/cost-benefit visual", status:["todo","To create"]},
+      {item:"Our own new site (first build)", status:["verify","In progress"]},
+      {item:"All Angles (content strategy reference)", status:["avail","Reference only"]},
+      {item:"HubSpot partner badge", status:["verify","Confirm tier"]}
+    ],
+    openQuestions:[
+      "HubSpot partner tier — confirm + which badge we display.",
+      "'Out of scope' undefined (new capability) — revisit after we build our own site.",
+      "Confirm nameable proof: our new site (timing), All Angles, marketing-stack examples.",
+      "Research competitor HubSpot-agency positioning (John)."
+    ],
+    crossLinks:[{label:"WordPress (the comparison)",to:"wordpress"},{label:"Integrations / marketing-stack",to:"integrations"}]
+  }
+};
+
+/* ---------------- WEBFLOW ---------------- */
+PAGES.webflow = {
+  title:"Webflow", url:"/solutions/webflow-development", crumb:"What We Do › CMS › Webflow",
+  body: navmock() +
+    hero("Webflow, done right — starting with whether it's right for you.",
+      "Webflow is brilliant for polished, fast-launch sites — and not for everything. We help you decide if it's the right platform for your project, then build it beautifully when it is.",
+      [{label:"Not sure if Webflow is right? Let's figure it out", kind:"primary"}]) +
+    block("Is Webflow Right For You? (THE CENTERPIECE)", `
+      <div class="grid cols-2">
+        <div class="card"><h4>Webflow FITS</h4><div class="sub">Brochureware, highly-designed sites, quick launches, positioning sites, microsites, segment/new-brand launches</div></div>
+        <div class="card"><h4>Webflow DOESN'T</h4><div class="sub">Complex/custom builds, running an application → WordPress or custom build instead</div></div>
+      </div>`+dep("fit-guide rubric — John; this page's core asset")) +
+    textBlock("We'll Help You Evaluate","Platform-fit guidance for your project (the agnostic, advisory stance).") +
+    textBlock("What We Build on Webflow","Design-led marketing sites, positioning/microsites, fast launches.") +
+    textBlock("When to Look Elsewhere","Complex/custom or apps → WordPress or custom build.") +
+    block("Proof","Design/build quality portfolio (Webflow examples as they come)."+dep("⚠ partner badge PENDING — do not show until confirmed")) +
+    ctaBand([{label:"Not sure if Webflow is right? Let's figure it out", kind:"primary"},{label:"See our work", kind:"secondary"}]),
+  meta:{
+    audience:"Design-conscious marketing teams; founders/startups wanting a polished site fast; brands launching a positioning site/microsite/segment or new-brand site — plus buyers weighing platform fit.",
+    buyerStage:"Split — some have chosen Webflow and want a builder; others are weighing platforms and want guidance.",
+    oneTakeaway:"Webflow done right starts with the right call — we help you make it, then build it.",
+    primaryCTA:"Not sure if Webflow is right? Let's figure it out",
+    secondaryCTA:"See our work",
+    tertiaryCTA:null,
+    voice:"Trusted advisor, tough-love honest — helps you pick the right tool for the job.",
+    status:"Draft v2 · Webflow partner coming shortly · lighter than WordPress/HubSpot",
+    seo:["Webflow development agency","Webflow developers","is Webflow right for my site","Webflow vs WordPress"],
+    aeo:["Is Webflow the right platform for my project?","When should I use Webflow (vs WordPress)?","Can Webflow handle what I need?","Should I build my marketing site on Webflow?"],
+    faq:[
+      {q:"Is Webflow right for my project?", a:"It's ideal for polished, fast-to-launch marketing sites. We'll help you decide based on your specific needs."},
+      {q:"Webflow or WordPress?", a:"Webflow for design-led, quick-launch marketing sites; WordPress (or custom) for robustness or complex functionality."},
+      {q:"Can you help me decide if Webflow is the right platform?", a:"Yes — that's where we start. We'll evaluate the fit, recommend Webflow when it's right, and build it."}
+    ],
+    proof:[
+      {item:"'Is Webflow right for you?' fit guide", status:["todo","To create — core asset"]},
+      {item:"Design/build quality portfolio", status:["verify","Lead on this meanwhile"]},
+      {item:"Webflow partner badge", status:["needed","Pending — do not show yet"]}
+    ],
+    openQuestions:[
+      "Webflow partnership timing — when can we show the badge?",
+      "The fit-guide rubric — our honest criteria (John to define — the page's core asset).",
+      "Any Webflow work to feature yet, or lead purely on general design/build quality?",
+      "Confirm page depth stays lighter than WordPress/HubSpot."
+    ],
+    crossLinks:[{label:"WordPress (when Webflow isn't the fit)",to:"wordpress"},{label:"Custom Platforms & Apps",to:"cpa"}]
+  }
+};
+
+/* ---------------- CUSTOM PLATFORMS & APPLICATIONS (hub) ---------------- */
+PAGES.cpa = {
+  title:"Custom Platforms & Applications", url:"/solutions/custom-platforms-applications", crumb:"What We Do › Custom Platforms & Applications",
+  body: navmock() +
+    hero("When off-the-shelf won't do, we build it.",
+      "Web apps, SaaS products, mobile apps and bespoke custom software — one engineering team, engineered to scale, with the thoroughness that gets us picked.",[]) +
+    textBlock("The Unifying Idea","One engineering team, the full range of builds; thorough, scalable, extendable.") +
+    cards("Build Router", [
+      {title:"Custom Software", sub:"AI agents, internal/ext, desktop/.NET, middleware", to:"customsoftware"},
+      {title:"SaaS", sub:"Building / scaling a SaaS product", to:"saas"},
+      {title:"Web Applications", sub:"Enterprise internal/external web apps", to:"webapps"},
+      {title:"Mobile Applications", sub:"Mobile apps, SaaS companion, mobile commerce", to:"mobile"}
+    ],4) +
+    textBlock("The Recipe (shared)","Discovery, ruthless prioritization, governance, security, scalability & extendability; the thoroughness that gets us picked.") +
+    cards("Proof — breadth-of-build", [
+      {title:"Breeze", sub:"ICP-close prime"},{title:"We Oversee", sub:"ICP-close prime"},{title:"GeoShield", sub:"ICP-close prime"}
+    ],3) +
+    ctaBand([{label:"Tell us about your project", kind:"primary"},{label:"Jump to a build type", kind:"secondary"}]),
+  meta:{
+    audience:"Anyone with a build-vs-buy need but unsure which kind of build — technical/IT, founders/product, enterprises — plus search/answer engines on custom-software terms.",
+    buyerStage:"Decided (or leaning) to build something custom; not yet sure which type/page.",
+    oneTakeaway:"When off-the-shelf won't do, we build it — web apps, SaaS products, mobile apps and bespoke custom software — engineered to scale, with the thoroughness that gets us picked.",
+    primaryCTA:"Tell us about your project",
+    secondaryCTA:"Jump to a build type (cards)",
+    tertiaryCTA:null,
+    voice:"Confident, rigorous, build-led; route — do not repeat the child pages.",
+    status:"Draft · router — confirm scope",
+    seo:["custom software development company","custom application development","build custom software","software development agency"],
+    aeo:["Should I build custom software or buy off-the-shelf?","What kinds of applications can you build?","Who builds web apps, SaaS and mobile apps?","Where do I start with a custom build?"],
+    faq:[
+      {q:"What can you build?", a:"Web applications, SaaS products, mobile apps and bespoke custom software — from AI agents and internal tools to customer-facing platforms."},
+      {q:"Should I build or buy?", a:"If nothing off-the-shelf fits — or it is bloated and overpriced — building is often better. We help you confirm feasibility first."},
+      {q:"Where do I start?", a:"With the kind of build you need, and we will point you to the right place (or talk it through)."}
+    ],
+    proof:[
+      {item:"Build cards (linked grid)", status:["todo","To build"]},
+      {item:"Breadth-of-build portfolio (ICP-close prime)", status:["verify","Select + permission"]},
+      {item:"Shared 'recipe' visual", status:["todo","Optional — to create"]}
+    ],
+    openQuestions:[
+      "Hub name/slug confirm.",
+      "Which cross-build / ICP-close proof do we feature here?",
+      "How prescriptive should the 'where to start' guidance be?",
+      "Show a shared 'typical ecosystem we build' visual at hub level, or keep on child pages?"
+    ],
+    crossLinks:[{label:"Custom Software",to:"customsoftware"},{label:"SaaS",to:"saas"},{label:"Web Applications",to:"webapps"},{label:"Mobile Applications",to:"mobile"},{label:"Cloud, Data & Integration",to:"cdi"},{label:"CMS",to:"cms"},{label:"B2B eCommerce Development",to:"b2becom"}]
+  }
+};
+
+/* ---------------- CUSTOM SOFTWARE ---------------- */
+PAGES.customsoftware = {
+  title:"Custom Software", url:"/solutions/custom-software-development", crumb:"What We Do › Custom Platforms & Applications › Custom Software",
+  body: navmock() +
+    hero("Custom software for the problem nothing off-the-shelf can solve.",
+      "Built hundreds of times, across huge breadth — and built to scale, not as a 6-month MVP that becomes whack-a-mole.",
+      [{label:"Tell us about your project", kind:"primary"}]) +
+    cards("Are You in the Right Place?", [
+      {title:"AI agents / orchestration", sub:""},{title:"Internal apps", sub:""},{title:"External apps", sub:""},
+      {title:"Middleware + interfaces", sub:""},{title:"Desktop / .NET / Mac", sub:""}
+    ],5) +
+    cards("The Wall — hundreds of examples", [
+      {title:"Breeze (WMS)", sub:"ICP-close prime"},{title:"Alchemy", sub:""},
+      {title:"Altera (rentals)", sub:""},{title:"GeoShield Dealer OS", sub:""}
+    ],4) +
+    block("Our Process","The thoroughness that gets us selected."+dep("DIFFERENTIATED process visual — NOT the cliché 3-node; John to find the differentiator")) +
+    textBlock("The Recipe","Discovery, road-mapping, ruthless prioritization, governance, security, scalability & extendability, clean code.") +
+    textBlock("Feasibility Help","Light discovery → needs, objectives, prerequisites + buy-in materials (high-level costs, risks — no detailed breakdowns at lead-gen).") +
+    block("The Typical Ecosystem We Build","Core module + wrapping modules."+dep("elements from Asim → John to visualize")) +
+    chips("Technology Stack", ["Node.js","JavaScript","PHP","Python"]) +
+    ctaBand([{label:"Tell us about your project", kind:"primary"},{label:"See what we have built", kind:"secondary"}]),
+  meta:{
+    audience:"Technical buyers — IT or IT-adjacent (DevOps, IT support, development, digital product). Already leaned build-vs-buy toward BUILD.",
+    buyerStage:"Every visitor is at one of two stages: (1) determining FEASIBILITY, or (2) building internal BUY-IN.",
+    oneTakeaway:"We have built custom software hundreds of times, across huge breadth — and we build it to scale, not as a 6-month MVP that becomes whack-a-mole.",
+    primaryCTA:"Tell us about your project",
+    secondaryCTA:"See what we have built",
+    tertiaryCTA:null,
+    voice:"Technical, rigorous, build-confident.",
+    status:"Draft · Session 2 · ~80% shared template with Web Applications",
+    seo:["custom software development","custom software development company","bespoke software development","build vs buy software"],
+    aeo:["When should I build custom software instead of buying off-the-shelf?","How do I know if my software idea is feasible?","What does custom software development involve?","Can you build an AI agent / internal tool / desktop application?"],
+    faq:[
+      {q:"Should I build custom software or buy off-the-shelf?", a:"If nothing off-the-shelf fits — or it is bloated and overpriced — building is often better."},
+      {q:"What can you build?", a:"A huge range: AI agents and orchestration, internal and external applications, middleware, desktop/.NET applications."},
+      {q:"How do you make sure it scales?", a:"Through ruthless prioritization and engineering for scalability and extendability."}
+    ],
+    proof:[
+      {item:"Portfolio wall + metadata", status:["needed","Asim + Daniyal"]},
+      {item:"Differentiated process visual", status:["todo","John to design"]},
+      {item:"Typical-ecosystem diagram", status:["todo","Asim to give elements"]},
+      {item:"Examples (Altera, Alchemy, GeoShield, Breeze)", status:["verify","Confirm naming + permission"]}
+    ],
+    openQuestions:[
+      "Which examples can we name (Altera, Alchemy, GeoShield, Breeze) — permission per the Ancestry lesson?",
+      "The process-visual differentiator — what makes it visibly NOT cookie-cutter?",
+      "The 'typical ecosystem we build' elements for custom software.",
+      "Page name — 'Custom Software' vs 'Custom Software Development'."
+    ],
+    crossLinks:[{label:"Web Applications",to:"webapps"},{label:"SaaS",to:"saas"},{label:"Mobile Applications",to:"mobile"},{label:"Integrations",to:"integrations"},{label:"Cloud Infrastructure",to:"infra"}]
+  }
+};
+
+/* ---------------- SAAS ---------------- */
+PAGES.saas = {
+  title:"SaaS", url:"/solutions/saas-development", crumb:"What We Do › Custom Platforms & Applications › SaaS",
+  body: navmock() +
+    hero("From product idea to scalable SaaS.",
+      "We build SaaS products founders can take to market and grow — engineered for multi-tenancy, billing and scale from day one, so you are never stuck with an MVP that cannot grow.",
+      [{label:"Tell us about your product", kind:"primary"}]) +
+    textBlock("Are You in the Right Place?","Founders & product teams building or scaling a SaaS product. (Enterprise apps → Web Applications.)") +
+    cards("Examples", [
+      {title:"We Oversee", sub:"Flagship SaaS-founder build"},
+      {title:"SaaS + mobile case 1", sub:"Confirm + name"},
+      {title:"SaaS + mobile case 2", sub:"Confirm + name"}
+    ],3) +
+    block("Our Process","Thoroughness; the shared differentiated process visual.") +
+    textBlock("The Recipe","Tuned for MVP-to-scale: multi-tenancy, billing/subscriptions, extendability, clean code.") +
+    chips("The Typical Ecosystem We Build", ["Auth","Billing / subscriptions","Multi-tenancy","Integrations"]) +
+    textBlock("SaaS + Mobile","Extend your SaaS with a companion mobile app.") +
+    chips("Technology Stack", ["Node.js","JavaScript","PHP","Python"]) +
+    ctaBand([{label:"Tell us about your product", kind:"primary"},{label:"See SaaS we have built", kind:"secondary"}]),
+  meta:{
+    audience:"SaaS founders/co-founders & product leaders — a software company (often a startup) building or scaling a SaaS product to take to market.",
+    buyerStage:"'I have a SaaS product (idea or early build) and need a partner' — or expanding an existing SaaS (e.g. add mobile).",
+    oneTakeaway:"We build SaaS products founders can take to market and grow — engineered for scale (multi-tenancy, billing, extendability) from day one, not an MVP that gets stuck.",
+    primaryCTA:"Tell us about your product",
+    secondaryCTA:"See SaaS we have built",
+    tertiaryCTA:null,
+    voice:"Founder-friendly, product- and growth-minded, build-confident; rigorous without being enterprise-IT heavy.",
+    status:"Draft · Session 2 · SaaS-specific call direction is thin — confirm with Asim",
+    seo:["SaaS development company","SaaS product development","build a SaaS product","MVP development","SaaS development partner"],
+    aeo:["How do I build a SaaS product?","How do you build a SaaS that scales (multi-tenancy, billing)?","What does SaaS development involve / cost?","Can you take my SaaS product to mobile?"],
+    faq:[
+      {q:"Can you build my SaaS product from scratch?", a:"Yes — we take SaaS products from idea (0→1) through to scale (1→n)."},
+      {q:"How do you make sure my SaaS scales?", a:"We engineer for scalability and extendability from day one through ruthless prioritization and clean architecture."},
+      {q:"Can you add a mobile app to my SaaS?", a:"Yes — extending a SaaS with a companion mobile app is something we have done."}
+    ],
+    proof:[
+      {item:"We Oversee (flagship)", status:["verify","Confirm + name + permission"]},
+      {item:"SaaS + mobile cases (2)", status:["verify","Confirm + name"]},
+      {item:"Typical-ecosystem diagram", status:["todo","Asim → John"]}
+    ],
+    openQuestions:[
+      "SaaS-specific positioning & personas — the call under-covered SaaS; get Asim's direction.",
+      "Which SaaS examples can we name (We Oversee + 2 SaaS+mobile cases)?",
+      "Page name — 'SaaS' vs 'SaaS Development'.",
+      "How hard do we lean on startups vs established SaaS companies?"
+    ],
+    crossLinks:[{label:"Mobile Applications (SaaS + mobile)",to:"mobile"},{label:"Web Applications",to:"webapps"},{label:"Custom Software",to:"customsoftware"},{label:"Cloud Infrastructure",to:"infra"}]
+  }
+};
+
+/* ---------------- WEB APPLICATIONS ---------------- */
+PAGES.webapps = {
+  title:"Web Applications", url:"/solutions/web-application-development", crumb:"What We Do › Custom Platforms & Applications › Web Applications",
+  body: navmock() +
+    hero("Enterprise web applications, built to scale.",
+      "Internal tools and customer-facing platforms in the cloud — built hundreds of times, with the thoroughness that gets us selected and the architecture that keeps them growing.",
+      [{label:"Tell us about your project", kind:"primary"}]) +
+    cards("Are You in the Right Place?", [
+      {title:"INTERNAL", sub:"Operations tools, WMS, back-office"},
+      {title:"EXTERNAL", sub:"Customer-facing platforms, portals, dealer systems"}
+    ],2) +
+    cards("The Wall — hundreds of enterprise web apps", [
+      {title:"Breeze (WMS)", sub:"Internal"},{title:"Alchemy", sub:"Internal"},
+      {title:"Travel Gossip", sub:"External"},{title:"Big Agent Rewards", sub:"External"},
+      {title:"GeoShield Dealer OS", sub:"External", to:"dealer"}
+    ],5) +
+    block("Our Process","Differentiated, non-cookie-cutter visual."+dep("John to design")) +
+    textBlock("The Recipe","Discovery, road-mapping, ruthless prioritization, governance, security, scalability & extendability, clean code.") +
+    block("The Typical Ecosystem We Build","Core app + wrapping modules."+dep("Asim → John diagram")) +
+    chips("Technology Stack", ["Node.js","JavaScript","PHP","Python","WordPress (as app engine)"]) +
+    ctaBand([{label:"Tell us about your project", kind:"primary"},{label:"See web apps we have built", kind:"secondary"}]),
+  meta:{
+    audience:"Enterprise buyers — someone inside an enterprise who needs a team to build web applications, savvy enough to know the difference between a web app, custom software and SaaS. IT is a big audience.",
+    buyerStage:"Technically mature; knows what a web app is. (Secondary: founders — a couple of SaaS mentions for stray founders.)",
+    oneTakeaway:"We have built enterprise web applications — internal and external — literally hundreds of times, with the thoroughness that gets us selected and the architecture that keeps them scaling.",
+    primaryCTA:"Tell us about your project",
+    secondaryCTA:"See web apps we have built",
+    tertiaryCTA:null,
+    voice:"Enterprise, technical, rigorous, breadth-led; thoroughness is the sell. Outcome-anchored (scales, won't become whack-a-mole).",
+    status:"Draft · Session 2 · CANONICAL template — Custom Software & SaaS inherit ~80%",
+    seo:["web application development","web application development company","enterprise web application development","custom web app developers"],
+    aeo:["What is a web application (vs custom software vs SaaS)?","Who builds enterprise web applications?","Can you build both internal and external web apps?","How do you build a web application that scales?"],
+    faq:[
+      {q:"What is the difference between a web application and custom software?", a:"A web application always lives in the cloud and runs in a browser; custom software is broader."},
+      {q:"Do you build internal and external web apps?", a:"Yes — internal operations tools (e.g. a WMS) and external customer-facing platforms and portals."},
+      {q:"How do you make sure a web app scales?", a:"Through ruthless prioritization and engineering for scalability and extendability."}
+    ],
+    proof:[
+      {item:"Internal/external use-case clusters", status:["todo","To build"]},
+      {item:"Portfolio wall + metadata", status:["verify","Select + tag metadata"]},
+      {item:"Process visual", status:["todo","John to design — NOT cliché 3-node"]},
+      {item:"Examples (Breeze, Alchemy, Travel Gossip, Big Agent Rewards, GeoShield)", status:["verify","Confirm naming + permission"]}
+    ],
+    openQuestions:[
+      "Page name — 'Web Applications' vs 'Enterprise Web Applications' (Asim leaned to the latter).",
+      "Which examples can we name — permission?",
+      "The process-visual differentiator — what makes our process visibly NOT cookie-cutter?",
+      "Do we cross-link WordPress for the 'application engine' point (Big Agent Rewards)?"
+    ],
+    crossLinks:[{label:"Custom Software",to:"customsoftware"},{label:"SaaS",to:"saas"},{label:"Mobile Applications",to:"mobile"},{label:"Integrations",to:"integrations"},{label:"Cloud Infrastructure",to:"infra"},{label:"WordPress (app engine)",to:"wordpress"}]
+  }
+};
+
+/* ---------------- MOBILE APPLICATIONS ---------------- */
+PAGES.mobile = {
+  title:"Mobile Applications", url:"/solutions/mobile-application-development", crumb:"What We Do › Custom Platforms & Applications › Mobile Applications",
+  body: navmock() +
+    hero("Mobile apps, built by a team that understands mobile.",
+      "From a SaaS companion app to mobile commerce to a mobile-first product — we build the core and everything that wraps it (push, offline, location), engineered to scale.",
+      [{label:"Tell us about your project", kind:"primary"}]) +
+    cards("Are You in the Right Place?", [
+      {title:"Mobile-first business", sub:""},{title:"SaaS companion app", sub:"", to:"saas"},{title:"Mobile commerce", sub:""}
+    ],3) +
+    cards("The Wall — mobile apps we have built", [
+      {title:"SaaS + mobile case 1", sub:"Confirm + name"},{title:"SaaS + mobile case 2", sub:"Confirm + name"},
+      {title:"Scheduling app", sub:"APIs + mobile experience (law-enforcement payroll/timekeeping)"}
+    ],3) +
+    block("⚠ Mobile Commerce Note","Serve it as a use case — the current live one is an OPEN DEAL, not a delivered case study. Never present as proof.") +
+    block("Our Process","Thoroughness; shared differentiated process visual.") +
+    textBlock("The Recipe","Discovery, prioritization, governance, security, scalability & extendability, clean code.") +
+    block("The Typical Ecosystem We Build (Mobile)", `<div class="grid cols-3">
+        <div class="card">Push notifications</div><div class="card">Offline support</div><div class="card">Location / geolocation</div>
+      </div>`+dep("diagram — Asim → John; 'clearest of the three'")) +
+    chips("Technology Stack", ["iOS","Android","React Native / Flutter","+ APIs"]) +
+    ctaBand([{label:"Tell us about your project", kind:"primary"},{label:"See mobile apps we have built", kind:"secondary"}]),
+  meta:{
+    audience:"Product people AND IT people — co-equal (a big combined audience). Secondary: owners, founders, co-founders, C-level.",
+    buyerStage:"Use cases: (1) mobile is the right substrate; (2) SaaS needs a companion app; (3) mobile commerce (often head of IT).",
+    oneTakeaway:"We build mobile apps and truly understand the mobile-specific ecosystem — the core app plus push, offline and location — engineered to scale.",
+    primaryCTA:"Tell us about your project",
+    secondaryCTA:"See mobile apps we have built",
+    tertiaryCTA:null,
+    voice:"Speaks to product & IT equally; mobile-fluent, rigorous, build-confident. Outcome-anchored.",
+    status:"Draft · Session 2 · NEW page (replaced Business Process Automation) · shared template",
+    seo:["mobile app development","mobile app development company","iOS / Android app developers","React Native app development","mobile commerce app development"],
+    aeo:["Who builds mobile apps (iOS and Android)?","Can you add a mobile app to my SaaS?","Can you build a mobile commerce app?","What goes into a good mobile app (push, offline, geolocation)?"],
+    faq:[
+      {q:"Do you build iOS and Android apps?", a:"Yes — native and cross-platform (e.g. React Native / Flutter), with APIs behind them where needed."},
+      {q:"Can you add a mobile app to my SaaS?", a:"Yes — extending a SaaS with a companion mobile app is something we have done more than once."},
+      {q:"What makes a good mobile app?", a:"The core app plus the mobile-specific essentials — push notifications, offline support and location services."}
+    ],
+    proof:[
+      {item:"Use-case clusters", status:["todo","To build"]},
+      {item:"SaaS + mobile cases (2)", status:["verify","Confirm + name"]},
+      {item:"Scheduling app (APIs + mobile)", status:["verify","Confirm + name"]},
+      {item:"Mobile commerce", status:["needed","⚠ Open deal, not a case study"]},
+      {item:"Mobile-ecosystem diagram", status:["todo","Asim → John, clearest of the three"]}
+    ],
+    openQuestions:[
+      "Which mobile examples can we name — permission? (Mobile commerce live deal NOT usable yet.)",
+      "The mobile-ecosystem elements beyond push/offline/geolocation.",
+      "Mobile technology stack (Daniyal) — iOS/Android/React Native/Flutter + APIs.",
+      "Page name — 'Mobile Applications' vs 'Mobile App Development'."
+    ],
+    crossLinks:[{label:"SaaS (companion app)",to:"saas"},{label:"Web Applications",to:"webapps"},{label:"Custom Software",to:"customsoftware"},{label:"Shopify (mobile commerce)",to:"shopify"}]
+  }
+};
+
+/* ---------------- CLOUD, DATA & INTEGRATION (hub) ---------------- */
+PAGES.cdi = {
+  title:"Cloud, Data & Integration", url:"/solutions/cloud-data-integration", crumb:"What We Do › Cloud, Data & Integration",
+  body: navmock() +
+    hero("The engineering foundation beneath your applications.",
+      "Cloud infrastructure, system integration and data infrastructure — architected and built so everything above runs reliably, securely and at scale.",[]) +
+    textBlock("The Unifying Idea","Where systems RUN (cloud) · how they CONNECT (integration) · how data FLOWS & IS TRUSTED (data). Architecture-led, ERP-first underneath."+dep("optional foundation diagram")) +
+    cards("Capability Router", [
+      {title:"Infrastructure (Cloud)", sub:"Embedded cloud engineers (staff-aug)", to:"infra"},
+      {title:"Integrations", sub:"Connect ERP/CRM/PIM; right data, right system", to:"integrations"},
+      {title:"Data, Reporting & Intelligence", sub:"Pipelines, warehouse, semantic model", to:"data"}
+    ],3) +
+    textBlock("How to Choose / Where to Start","Decision guidance across the three.") +
+    block("Proof Strip","Cross-cutting: cloud certs, integration (Breeze/Patchworks), data (Polar)."+dep("needed")) +
+    ctaBand([{label:"Not sure where your challenge fits? Talk to us", kind:"primary"},{label:"Jump to a capability", kind:"secondary"}]),
+  meta:{
+    audience:"Senior technical buyers — engineering/technical leadership (CTO, VP, Director) and cloud/integration/data specialists + IT — plus search/answer engines on foundational-engineering terms.",
+    buyerStage:"Has a foundational/back-end engineering challenge but is not sure which capability it maps to.",
+    oneTakeaway:"The engineering foundation beneath your applications — cloud infrastructure, system integration and data infrastructure — architected and built right.",
+    primaryCTA:"Not sure where your challenge fits? Talk to us",
+    secondaryCTA:"Jump to a specific capability (cards)",
+    tertiaryCTA:null,
+    voice:"Orienting, technical, advisory; route, do not repeat the child pages. Engagement-model nuances (e.g. cloud staff-aug) live on child pages.",
+    status:"Draft · router · name recommended, pending Asim",
+    seo:["platform engineering services","cloud data and integration","data & infrastructure engineering","technical foundation partner"],
+    aeo:["What is the difference between cloud infrastructure, system integration and data engineering?","Who builds the technical foundation beneath our applications?","Do you cover cloud, integration AND data?","Where should I start with my foundational engineering challenge?"],
+    faq:[
+      {q:"Do you cover cloud, integration and data?", a:"Yes — all three are the foundational engineering layer we architect and build, connected and ERP-first."},
+      {q:"Where should I start?", a:"With your most pressing foundational challenge — we will point you to the right capability."},
+      {q:"Is this just for large enterprises?", a:"The foundational layer matters at any scale, though the deepest needs tend to come from larger organisations."}
+    ],
+    proof:[
+      {item:"Capability cards (linked grid)", status:["todo","To build"]},
+      {item:"Foundation diagram (optional)", status:["todo","To create"]},
+      {item:"Cross-cutting proof strip", status:["needed","Needed"]}
+    ],
+    openQuestions:[
+      "Section/hub name — recommend 'Cloud, Data & Integration' — confirm with Asim.",
+      "Hub slug — /solutions/cloud-data-integration?",
+      "Which cross-cutting proof do we feature here?",
+      "Do we include a 'foundation' diagram (apps on cloud + integration + data)?"
+    ],
+    crossLinks:[{label:"Infrastructure (Cloud)",to:"infra"},{label:"Integrations",to:"integrations"},{label:"Data, Reporting & Intelligence",to:"data"},{label:"Custom Platforms & Apps",to:"cpa"},{label:"B2B eCommerce Development",to:"b2becom"}]
+  }
+};
+
+/* ---------------- INFRASTRUCTURE (CLOUD) ---------------- */
+PAGES.infra = {
+  title:"Infrastructure (Cloud)", url:"/solutions/cloud-infrastructure", crumb:"What We Do › Cloud, Data & Integration › Infrastructure",
+  body: navmock() +
+    hero("Cloud infrastructure engineers, embedded in your team.",
+      "Deep DevOps expertise across AWS, Azure, GCP — and Alibaba Cloud — delivered securely and cost-efficiently. We work as embedded specialists, augmenting your team.",
+      [{label:"Talk to us about augmenting your cloud team", kind:"primary"}]) +
+    textBlock("What We Do","DevOps: design, stand up, implement, manage, maintain, improve cloud infrastructure.") +
+    block("How We Engage — STAFF AUGMENTATION ONLY","We embed engineers into your team. We do NOT offer managed retainers or standalone infra projects. Gently disqualifies retainer/managed-service seekers.") +
+    chips("Cloud Stack & Certifications", ["AWS (primary)","Azure","GCP"]) +
+    textBlock("Alibaba Cloud Differentiator","Rare expertise; mainland-China hosting reality (AWS/Azure/GCP can't); ZenPro — actively maintained large app."+dep("confirm + naming permission")) +
+    block("Complex Use Case + Diagram","One anonymized / watered-down cloud-architecture diagram from a real build."+dep("Asim provides real diagram → John waters down")) +
+    textBlock("Security, Governance & Cost-Efficiency","Secure delivery, well-managed accounts, no over-engineering ($50 bills that become $400; AI costs compound it).") +
+    ctaBand([{label:"Talk to us about augmenting your cloud team", kind:"primary"},{label:"See our cloud work (ZenPro)", kind:"secondary"}]),
+  meta:{
+    audience:"Highly technical: cloud-infrastructure professionals — technical leadership (Director/VP/CTO) or hands-on cloud specialist/engineering manager. 80/20 technical-to-product.",
+    buyerStage:"Two reader types: (1) seeking embedded cloud specialists; (2) vetting our infra maturity before a bigger project.",
+    oneTakeaway:"These people clearly know what they are doing — deep cloud expertise (AWS/Azure/GCP + Alibaba Cloud), delivered securely and cost-efficiently, via embedded engineers.",
+    primaryCTA:"Talk to us about augmenting your cloud team",
+    secondaryCTA:"See our cloud work (ZenPro / use case)",
+    tertiaryCTA:null,
+    voice:"Highly technical, peer-to-peer, depth-led; confident but not flashy. 'Plate not kitchen' still applies.",
+    status:"Draft · Session 2 · Staff-aug ONLY",
+    seo:["cloud infrastructure engineers","AWS / Azure / GCP staff augmentation","DevOps staff augmentation","Alibaba Cloud experts"],
+    aeo:["Can I hire embedded cloud/DevOps engineers (staff augmentation)?","Do you work across AWS, Azure and GCP — and are you certified?","Can you host/run applications in mainland China (Alibaba Cloud)?","How do you keep cloud infrastructure secure and cost-efficient?"],
+    faq:[
+      {q:"How do you engage on cloud infrastructure?", a:"Staff augmentation only — we embed our certified cloud engineers into your team."},
+      {q:"Which clouds are you certified in?", a:"AWS (primary), Azure and GCP — plus rare Alibaba Cloud experience."},
+      {q:"Can you run applications in mainland China?", a:"Yes — via Alibaba Cloud. We actively maintain a large app there."}
+    ],
+    proof:[
+      {item:"Cloud certification badges", status:["todo","Placeholder — to dig up"]},
+      {item:"Alibaba Cloud / ZenPro case study", status:["verify","Confirm + name"]},
+      {item:"Services list across 3 clouds", status:["needed","Asim + Daniyal to provide"]},
+      {item:"Cloud architecture diagram", status:["todo","John to create from Asim's real diagram"]}
+    ],
+    openQuestions:[
+      "Section name — recommend 'Cloud, Data & Integration' — confirm with Asim.",
+      "Page name — 'Infrastructure' vs 'Cloud Infrastructure' (Asim leaned to the latter).",
+      "Which complex project does the anonymized diagram represent?",
+      "Confirm the cross-cloud services list and ZenPro/Alibaba naming permission."
+    ],
+    crossLinks:[{label:"Custom Software & Web Apps (project evaluators)",to:"webapps"},{label:"Integrations",to:"integrations"},{label:"Data, Reporting & Intelligence",to:"data"}]
+  }
+};
+
+/* ---------------- INTEGRATIONS ---------------- */
+PAGES.integrations = {
+  title:"Integrations", url:"/solutions/integrations", crumb:"What We Do › Cloud, Data & Integration › Integrations",
+  body: navmock() +
+    hero("The right data, in the right place, at the right time.",
+      "Connected systems so the right data reaches the right person — designed properly and built with the right tool for the job, from a $50 connector to fully custom middleware.",
+      [{label:"Talk to us about connecting your systems", kind:"primary"}]) +
+    textBlock("The Problem","Silos, out-of-sync data, manual/double entry; operational problems that become CUSTOMER problems fast.") +
+    textBlock("Integration Is Design, Not Just Plumbing","What data lives where, source of truth, integration architecture.") +
+    flow("Match the Tool to the Need",["$50 connector","iPaaS: Patchworks, Celigo","n8n orchestration","Custom middleware"]) +
+    block("Proof","Breeze custom middleware (built & maintained from scratch); Patchworks iPaaS work; ERP/CRM/PIM integrations."+dep("confirm + naming permission")) +
+    ctaBand([{label:"Talk to us about connecting your systems", kind:"primary"},{label:"See our integration work (Breeze)", kind:"secondary"}]),
+  meta:{
+    audience:"80% IT (connecting ERP/CRM/PIM/systems) + 20% product & eCommerce (framed as 'I can't see my data/numbers'). Technical, but meet at the problem, not the tooling.",
+    buyerStage:"Arrive at problem-level ('I need this data') or system-level ('I need to connect Business Central') — almost NEVER at solution-level ('I need an iPaaS').",
+    oneTakeaway:"The right data, in the right system, at the right time, in front of the right person — designed properly and built with the right tool for the job.",
+    primaryCTA:"Talk to us about connecting your systems",
+    secondaryCTA:"See our integration work (Breeze)",
+    tertiaryCTA:null,
+    voice:"Pragmatic, advisory, outcome-led; 'plate not kitchen' — lead with the business outcome, not the iPaaS plumbing.",
+    status:"Draft · Session 2 · Section: Cloud, Data & Integration",
+    seo:["system integration services","iPaaS integration","ERP / CRM integration","custom middleware development","eCommerce integration agency"],
+    aeo:["How do I connect my systems (ERP, CRM, PIM, etc.)?","Do I need an iPaaS or custom middleware?","Why is my data out of sync across systems?","How do I get the right data into the right system?"],
+    faq:[
+      {q:"Do I need an iPaaS or custom middleware?", a:"It depends on complexity and scale. We match the tool to the need."},
+      {q:"Why does my data keep getting out of sync?", a:"Usually because systems are not properly integrated, so data is entered twice or never flows."},
+      {q:"Which integration tools do you work with?", a:"Patchworks, Celigo, Zapier, n8n, point-to-point connectors, and fully custom middleware."}
+    ],
+    proof:[
+      {item:"Breeze custom middleware", status:["verify","Confirm + name"]},
+      {item:"Patchworks / iPaaS work", status:["verify","Confirm"]},
+      {item:"Tools-of-the-trade strip", status:["verify","Confirm partner status"]},
+      {item:"Integration diagram (optional)", status:["todo","To create"]}
+    ],
+    openQuestions:[
+      "Section name — confirm 'Cloud, Data & Integration' with Asim.",
+      "Confirm whether a dedicated 'eCommerce integrations' page is added later.",
+      "Which integration tools/partners can we badge and at what status?",
+      "Breeze (and any Patchworks) case study — naming + permission."
+    ],
+    crossLinks:[{label:"Infrastructure",to:"infra"},{label:"Data, Reporting & Intelligence",to:"data"},{label:"B2B eCommerce Development",to:"b2becom"},{label:"Custom Software",to:"customsoftware"}]
+  }
+};
+
+/* ---------------- DATA, REPORTING & INTELLIGENCE ---------------- */
+PAGES.data = {
+  title:"Data, Reporting & Intelligence", url:"/solutions/data-reporting-intelligence", crumb:"What We Do › Cloud, Data & Integration › Data, Reporting & Intelligence",
+  body: navmock() +
+    hero("We lay the pipe and build the model — so your team can get to the answers.",
+      "Data stores, ETL pipelines, normalization and semantic models — the infrastructure that turns scattered systems into a trustworthy source of truth. We build the platform; your analysts do the analysis.",
+      [{label:"Talk to us about your data infrastructure", kind:"primary"}]) +
+    flow("The Data Lifecycle — the spine of the page",["1 Source & ingest","2 Store","3 Transform (ETL)","4 Model & norm.","5 Serve & report","6 Analyze (you)","7 Storytell (you)"]) +
+    textBlock("⚑ Codup's Zone","Stages 1–5. Analysis (6) and storytelling (7) are explicitly downstream — your team's job.") +
+    textBlock("What We Stand Up","Data stores/warehouses, ETL/ELT pipelines, normalization, semantic models (natural-language models via LLMs).") +
+    chips("The Technology", ["Snowflake","Databricks","Hex"]) +
+    block("eCommerce Data Audit (with Polar)","Our strongest, ICP-relevant angle."+dep("offer scope — 'we need to work that out'")) +
+    block("Use Case","Group-level data consolidation & semantic model (multi-entity, anonymized)."+dep("confirm anonymization")) +
+    ctaBand([{label:"Talk to us about your data infrastructure", kind:"primary"},{label:"On eCommerce? Ask about our Polar data audit", kind:"secondary"}]),
+  meta:{
+    audience:"A data/BI/analytics professional — IT-adjacent, an engineer by training but a DATA person, now usually managing a data function. Very digitally-mature org.",
+    buyerStage:"They lack the engineering muscle/bandwidth to build this themselves, and want to get to analysis: 'help us lay the pipe so we can see.'",
+    oneTakeaway:"We lay the pipe and build the model — so your team can get to the answers.",
+    primaryCTA:"Talk to us about your data infrastructure",
+    secondaryCTA:"On eCommerce? Ask about our Polar data audit",
+    tertiaryCTA:null,
+    voice:"Technical, peer-to-peer with a data leader; honest about scope; 'plate not kitchen'.",
+    status:"Draft · Session 2 · OUR THINNEST AREA — honest framing · may split V2/V3",
+    seo:["data infrastructure services","data pipeline / ETL development","data warehouse setup","semantic model / semantic layer","eCommerce data audit"],
+    aeo:["Who builds data pipelines, warehouses and ETL?","What is a semantic model / semantic layer?","What is the difference between data infrastructure and data analysis?","How do I get my data into a single source of truth?"],
+    faq:[
+      {q:"Do you do the data analysis?", a:"No — we build the infrastructure so your team can analyse. It is an engineering service, not an analysis service."},
+      {q:"What is a semantic model?", a:"A data model built — increasingly in natural language via LLMs — that normalizes your data into one trustworthy view."},
+      {q:"Do you work with eCommerce data?", a:"Yes — we run an eCommerce data audit in partnership with Polar, where we are especially strong."}
+    ],
+    proof:[
+      {item:"Data-lifecycle diagram (7 stages)", status:["todo","To create"]},
+      {item:"Technology strip logos", status:["verify","Confirm list with Daniyal"]},
+      {item:"Polar data audit", status:["todo","Define scope — 'we need to work that out'"]},
+      {item:"Multi-entity use case", status:["todo","To create"]}
+    ],
+    openQuestions:[
+      "Section name — confirm 'Cloud, Data & Integration' with Asim.",
+      "Keep as one 3-in-1 page for V1, or split into data/reporting/intelligence in V2-V3?",
+      "Polar partnership — define the eCommerce data-audit offer & wording.",
+      "Given limited depth here, how much detail do we show vs keep lean?"
+    ],
+    crossLinks:[{label:"Integrations (ingest/connect)",to:"integrations"},{label:"Infrastructure (cloud)",to:"infra"},{label:"B2B eCommerce Development",to:"b2becom"}]
+  }
+};
+
+/* ---------------- INDUSTRIES (hub) ---------------- */
+PAGES.industries = {
+  title:"Industries", url:"/industries", crumb:"Industries",
+  body: navmock() +
+    hero("Built for how your business actually sells.",
+      "Manufacturers, distributors, retailers, and DTC brands come to us with the same feeling: something has to change. We show you what, why, and in what order.",[]) +
+    cards("Four Segment Cards — obvious problem → the real problem (mirror)", [
+      {title:"Manufacturing", sub:"Real: can't fund the fix — nothing's written down. Proof: DMF, Breeze, GeoShield"},
+      {title:"Distribution / Wholesale", sub:"Real: knowledge trapped in people; growth capped. Proof: GeoShield, Dealer Portal IP", to:"dealer"},
+      {title:"Retail / Unified", sub:"⚠ THINNEST PROOF — build carefully or hold. Real: guessing at inventory & pricing"},
+      {title:"DTC", sub:"Real: ads into a leaky funnel with no plan. Proof: Global Healing, AllTerra, Garden for Wildlife"}
+    ],4) +
+    textBlock("Why Segment Matters","The assessment and roadmap are tailored to your quote-to-cash reality, not generic.") +
+    block("Proof Strip","Segment-matched logos / case studies."+dep("one matched, quantified case per segment — needed/verify; per-segment before/after workflow diagrams — John/design")) +
+    ctaBand([{label:"See where you stand (per segment)", kind:"secondary"},{label:"Get your roadmap", kind:"primary", to:"roadmap"},{label:"Talk to us", kind:"tertiary"}]),
+  meta:{
+    audience:"Search/answer engines on 'eCommerce for manufacturers' etc. (SEO parity with Novatize's industry pages); segment operators pattern-matching for proof.",
+    buyerStage:"'This is my world and they get it' → feel recognized → take the assessment or get the roadmap.",
+    oneTakeaway:"Codup builds B2B and DTC commerce for manufacturers, distributors, retailers, and DTC brands. Each segment starts with a free readiness check or the paid Operator Roadmap.",
+    primaryCTA:"See where you stand (free, per segment)",
+    secondaryCTA:"Get your roadmap",
+    tertiaryCTA:"Talk to us",
+    voice:"Operator language per segment; name the real problem; candid, not raw.",
+    status:"BRIEFED (hub). Segment child pages: Manufacturing/Distribution/Retail = HUB BRIEFED only; DTC = NOT YET.",
+    seo:["eCommerce for manufacturers","distributor eCommerce","unified commerce for retail","DTC eCommerce agency"],
+    aeo:["Do you work with manufacturers / distributors / retailers / DTC brands?","What eCommerce problems do manufacturers / distributors face?","How do I start if I am a [segment]?"],
+    faq:[
+      {q:"I am a distributor — where do I start?", a:"Take the free distribution readiness check, or get the Operator Roadmap directly."},
+      {q:"Do I have to do the assessment?", a:"No — it is optional and free; the roadmap is available directly."}
+    ],
+    proof:[
+      {item:"Segment cards (linked grid)", status:["todo","To build"]},
+      {item:"Before/after workflow diagram (per segment)", status:["todo","To create"]},
+      {item:"Segment case study (matched, quantified)", status:["needed","Needed / verify"]}
+    ],
+    openQuestions:[
+      "Confirm the four doors (add Retail/Unified + DTC; retire standalone 'Complex B2B Commerce' card).",
+      "Is Retail/Unified Commerce built now, or held until a proof story exists?",
+      "Confirm DTC lives in Industries and is deep-linked from the homepage B2C/DTC path."
+    ],
+    crossLinks:[{label:"Dealer & Customer Portals",to:"dealer"},{label:"AI Order Automation",to:"aiorder"},{label:"Product Configurator",to:"configurator"},{label:"ERP-First Modernization",to:null},{label:"The Operator Roadmap",to:"roadmap"}]
+  }
+};
+
+/* ============================================================
+   SIDEBAR / SITEMAP STRUCTURE
+   ============================================================ */
+const SITEMAP = [
+  {group:"Top of funnel", items:["home","wwd","roadmap"]},
+  {group:"Portal & Commerce Solutions", items:["pcs","dealer","aiorder","b2becom","configurator"]},
+  {group:"Commerce Platforms", items:["platforms","shopify","bigcommerce","shopware","woocommerce"]},
+  {group:"CMS", items:["cms","wordpress","hubspot","webflow"]},
+  {group:"Custom Platforms & Applications", items:["cpa","customsoftware","saas","webapps","mobile"]},
+  {group:"Cloud, Data & Integration", items:["cdi","infra","integrations","data"]},
+  {group:"Industries", items:["industries"]}
+];
+const HUBS = new Set(["wwd","pcs","platforms","cms","cpa","cdi","industries"]);
+
+/* ============================================================
+   RENDER / ROUTER
+   ============================================================ */
+let currentPageId = 'home';
+
+function pageCommentCounts(pageId){
+  // returns {open, total} for a given page's comments
+  let open=0, total=0;
+  COMMENTS.forEach(c=>{ if(c.pageId===pageId){ total++; if(!c.resolved) open++; } });
+  return {open, total};
+}
+function sidebarCountBadge(pageId){
+  const {open,total} = pageCommentCounts(pageId);
+  if(total===0) return '';
+  if(open===0) return `<span class="sb-count all-resolved" title="${total} comment${total===1?'':'s'}, all resolved">✓</span>`;
+  return `<span class="sb-count" title="${open} open of ${total} comment${total===1?'':'s'}">${open}</span>`;
+}
+function renderSidebar(activeId){
+  const sb = document.getElementById('sidebar');
+  let html = `<h1>Codup Website</h1><span class="tag">Lo-fi clickable prototype · 27 briefed pages</span>`;
+  if(EXPORT_META){
+    html += `<span class="tag" style="color:#c9c9be;">Exported ${escapeHtml(new Date(EXPORT_META.exportedAt).toLocaleString())}${EXPORT_META.exportedBy?' by '+escapeHtml(EXPORT_META.exportedBy):''}</span>`;
+  }
+  SITEMAP.forEach(g=>{
+    html += `<div class="sb-group"><div class="sb-group-title">${g.group}</div>`;
+    g.items.forEach(id=>{
+      const p = PAGES[id];
+      const isHub = HUBS.has(id);
+      html += `<span class="sb-link ${isHub?'hub':''} ${id===activeId?'active':''}" onclick="nav('${id}')"><span class="sb-label">${p.title}${isHub?' <span class="status">HUB</span>':''}</span>${sidebarCountBadge(id)}</span>`;
+    });
+    html += `</div>`;
+  });
+  sb.innerHTML = html;
+}
+function renderTopbar(p){
+  document.getElementById('topbar').innerHTML =
+    `<div class="topbar-left">
+       <button class="icon-btn" id="navToggle" title="Show/hide the left panel (\\)" onclick="toggleNav()">☰</button>
+       <div class="crumbs">
+         <span class="crumb">${p.crumb}</span><span class="crumb" style="opacity:.5">·</span><span class="crumb"><b>${p.url}</b></span>
+         <span class="status-pill">${p.meta.status.split('·')[0].trim()}</span>
+       </div>
+     </div>
+     <div class="topbar-right">
+       <div class="search-wrap" id="searchWrap">
+         <input class="search-input" id="globalSearch" type="text" placeholder="Search body + comments…"
+           oninput="runSearch(this.value)" onfocus="if(this.value)openSearch()" autocomplete="off">
+         <span class="search-clear" onclick="clearSearch()" title="Clear">✕</span>
+         <div class="search-results" id="searchResults"></div>
+       </div>
+       <span class="c-count" id="cCount"></span>
+       <button class="cbtn" onclick="toggleCommentPanel()" title="Toggle comments (C)">💬 Comments</button>
+       <button class="cbtn" onclick="copySummary()">Copy summary</button>
+       <button class="cbtn active" onclick="exportCommented()">⬇ Export</button>
+     </div>`;
+  updateCountBadge();
+  // keep the search box populated across page navigations
+  const gs = document.getElementById('globalSearch');
+  if(gs && SEARCH_Q){ gs.value = SEARCH_Q; document.getElementById('searchWrap').classList.add('has-q'); }
+}
+function toggleNav(){
+  navHidden = !navHidden;
+  document.getElementById('app').classList.toggle('nav-hidden', navHidden);
+  try{ localStorage.setItem(NAV_KEY, navHidden ? '1':'0'); }catch(e){}
+}
+function nav(id){
+  if(!PAGES[id]){ return; }
+  location.hash = '#/'+id;
+}
+function renderPage(id){
+  if(!PAGES[id]) id='home';
+  currentPageId = id;
+  const p = PAGES[id];
+  renderSidebar(id);
+  renderTopbar(p);
+  document.getElementById('page').innerHTML = p.body + metaPanel(p.meta) +
+    `<div class="footer-hint">This is a lo-fi structural prototype — layout, copy and hierarchy for review, not final visual design. Hover any section (including the top nav) for a + to leave a comment.</div>`;
+  window.scrollTo(0,0);
+  instrumentPage(id);
+  if(panelOpen) renderCommentPanel();
+  if(SEARCH_Q) highlightBodyMatches(SEARCH_Q);
+  if(PENDING_SCROLL){ const t=PENDING_SCROLL; PENDING_SCROLL=null; scrollToSection(t.pageId, t.cid); }
+}
+function route(){
+  const id = (location.hash.replace('#/','')) || 'home';
+  renderPage(id);
+}
+
+/* ============================================================
+   COMMENTING SYSTEM
+   Google-Doc-style, section-level comments — no server required.
+   - Comments persist in this browser via localStorage.
+   - Two kinds of threads live OUTSIDE any single page:
+       pageId 'site' / cid 'nav'      -> the shared top nav mockup
+       pageId 'site' / cid 'general'  -> free-floating site-wide notes,
+                                          not tied to any component
+   - "Export copy w/ comments" bakes the current comment state (plus
+     a timestamp + your name) into a brand-new, still fully
+     self-contained HTML file to hand off (e.g. to John). He can add
+     his own comments and export back.
+   ============================================================ */
+const SITE = 'site'; // reserved pageId for site-wide (non-page) threads
+const STORAGE_KEY = 'codup_wf_comments_v1';
+const NAME_KEY = 'codup_wf_commenter_name';
+const NAV_KEY = 'codup_wf_nav_hidden';
+let COMMENTS = [];
+let panelOpen = false;
+let EXPORT_META = null;
+let navHidden = false;
+let SEARCH_Q = '';
+let PENDING_SCROLL = null;   // {pageId,cid} to scroll to after a page switch
+let PANEL_FILTER = 'all';    // 'all' | 'open' | 'mine'
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function attrSafe(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function loadComments(){
+  let seed = [];
+  try{ seed = JSON.parse(document.getElementById('comments-seed').textContent || '[]'); }catch(e){}
+  let local = [];
+  try{ local = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){}
+  const map = new Map();
+  seed.forEach(c=>map.set(c.id, c));
+  local.forEach(c=>map.set(c.id, c)); // local edits/additions win over the seed
+  COMMENTS = Array.from(map.values());
+  try{ EXPORT_META = JSON.parse(document.getElementById('export-meta').textContent || 'null'); }catch(e){ EXPORT_META = null; }
+}
+function saveComments(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(COMMENTS));
+}
+function getName(){
+  let n = localStorage.getItem(NAME_KEY);
+  if(!n){ n = prompt('Your name (shown on your comments):','') || 'Reviewer'; localStorage.setItem(NAME_KEY, n); }
+  return n;
+}
+function changeName(){
+  const n = prompt('Your name:', localStorage.getItem(NAME_KEY) || '');
+  if(n){ localStorage.setItem(NAME_KEY, n); renderCommentPanel(); }
+}
+function commentsFor(pageId, cid){ return COMMENTS.filter(c=>c.pageId===pageId && c.cid===cid); }
+function threadsFor(pageId){
+  const byCid = {};
+  COMMENTS.filter(c=>c.pageId===pageId).forEach(c=>{ (byCid[c.cid] = byCid[c.cid] || []).push(c); });
+  return byCid;
+}
+function openCount(){ return COMMENTS.filter(c=>!c.resolved).length; }
+function updateCountBadge(){
+  const el = document.getElementById('cCount');
+  if(el) el.textContent = openCount() + ' open (whole site)';
+  refreshSidebarCounts();
+}
+function refreshSidebarCounts(){
+  // update the little count badges in the left nav without a full re-render
+  document.querySelectorAll('#sidebar .sb-link').forEach(link=>{
+    const m = (link.getAttribute('onclick')||'').match(/nav\('([^']+)'\)/);
+    if(!m) return;
+    const id = m[1];
+    const existing = link.querySelector('.sb-count');
+    if(existing) existing.remove();
+    const badge = sidebarCountBadge(id);
+    if(badge) link.insertAdjacentHTML('beforeend', badge);
+  });
+}
+
+function labelFor(elm){
+  const h = elm.querySelector('.wf-label, h5');
+  return h ? h.textContent.trim() : 'Section';
+}
+function instrumentPage(pageId){
+  const container = document.getElementById('page');
+  // the top-nav mockup is shared across every page: fixed pageId/cid so its
+  // thread is the same one no matter which page you're viewing it from.
+  const navElm = container.querySelector('.navmock-wrap[data-nav="1"]');
+  if(navElm){ addPinAndButton(navElm, SITE, 'nav', 'Top Navigation (site-wide)'); }
+  let i = 0;
+  container.querySelectorAll('.wf-block:not([data-nav="1"])').forEach(b=>{
+    const cid = 'b' + (i++);
+    addPinAndButton(b, pageId, cid, labelFor(b));
+  });
+  let j = 0;
+  container.querySelectorAll('.meta-card').forEach(m=>{
+    const cid = 'm' + (j++);
+    addPinAndButton(m, pageId, cid, labelFor(m));
+  });
+}
+function addPinAndButton(elm, pageId, cid, label){
+  elm.dataset.cid = cid;
+  elm.dataset.pid = pageId;
+  const btn = document.createElement('div');
+  btn.className = 'add-comment-btn';
+  btn.textContent = '+';
+  btn.title = 'Add a comment on: ' + label;
+  btn.onclick = (e)=>{ e.stopPropagation(); openCommentForm(elm, pageId, cid, label); };
+  elm.appendChild(btn);
+  renderPinFor(elm, pageId, cid);
+}
+function renderPinFor(elm, pageId, cid){
+  let pin = elm.querySelector('.comment-pin');
+  const list = commentsFor(pageId, cid);
+  if(list.length===0){ if(pin) pin.remove(); return; }
+  const allResolved = list.every(c=>c.resolved);
+  if(!pin){ pin = document.createElement('div'); pin.className='comment-pin'; elm.appendChild(pin); }
+  pin.className = 'comment-pin ' + (allResolved ? 'resolved' : '');
+  pin.textContent = list.length;
+  pin.title = allResolved ? 'Resolved thread — click to view' : 'Open thread — click to view';
+  pin.onclick = (e)=>{ e.stopPropagation(); toggleCommentPanel(true); scrollToThread(pageId, cid); };
+}
+// Jump from a panel thread to its section in the body. If the comment lives on
+// another page (or on the shared nav, which appears on every page), navigate
+// there first, then scroll once the new page has rendered.
+function jumpToThread(pageId, cid){
+  const targetPage = (pageId===SITE) ? currentPageId : pageId; // nav/general live on current page's DOM
+  if(pageId!==SITE && pageId!==currentPageId){
+    PENDING_SCROLL = {pageId, cid};
+    nav(pageId);
+    return;
+  }
+  scrollToSection(pageId, cid);
+}
+function scrollToSection(pageId, cid){
+  // find the instrumented element for this thread on the CURRENT page
+  const sel = `#page [data-cid="${cid}"][data-pid="${pageId}"]`;
+  let elm = document.querySelector(sel);
+  // site/general has no body anchor; fall back to nav block for 'nav'
+  if(!elm && pageId===SITE && cid==='nav'){ elm = document.querySelector('#page .navmock-wrap'); }
+  if(!elm){ return; }
+  setTimeout(()=>{
+    elm.scrollIntoView({behavior:'smooth', block:'center'});
+    elm.classList.remove('flash-target');
+    void elm.offsetWidth; // restart animation
+    elm.classList.add('flash-target');
+    setTimeout(()=>elm.classList.remove('flash-target'), 1700);
+  }, 40);
+}
+function refreshPins(){
+  document.querySelectorAll('#page [data-cid]').forEach(elm=>{
+    renderPinFor(elm, elm.dataset.pid, elm.dataset.cid);
+  });
+}
+function openCommentForm(elm, pageId, cid, label){
+  document.querySelectorAll('.comment-form').forEach(f=>f.remove());
+  const form = document.createElement('div');
+  form.className = 'comment-form';
+  form.innerHTML = `
+    <div class="target-label">Commenting on: ${escapeHtml(label)}</div>
+    <textarea placeholder="Your comment…"></textarea>
+    <div class="row">
+      <button class="cbtn" type="button">Cancel</button>
+      <button class="cbtn active" type="button">Post</button>
+    </div>`;
+  const [cancelBtn, postBtn] = form.querySelectorAll('.row .cbtn');
+  cancelBtn.onclick = ()=>form.remove();
+  postBtn.onclick = ()=>{
+    const text = form.querySelector('textarea').value.trim();
+    if(!text) return;
+    COMMENTS.push({
+      id: 'c'+Date.now()+Math.random().toString(36).slice(2,7),
+      pageId, cid, label, author:getName(), text, ts:Date.now(), resolved:false
+    });
+    saveComments();
+    form.remove();
+    refreshPins();
+    updateCountBadge();
+    if(panelOpen) renderCommentPanel();
+  };
+  elm.appendChild(form);
+  form.querySelector('textarea').focus();
+}
+function replyTo(pageId, cid, label, inputEl){
+  const text = inputEl.value.trim();
+  if(!text) return;
+  COMMENTS.push({
+    id:'c'+Date.now()+Math.random().toString(36).slice(2,7),
+    pageId, cid, label, author:getName(), text, ts:Date.now(), resolved:false
+  });
+  inputEl.value = '';
+  saveComments();
+  refreshPins();
+  updateCountBadge();
+  renderCommentPanel();
+}
+function addSiteComment(inputEl){
+  const text = inputEl.value.trim();
+  if(!text) return;
+  COMMENTS.push({
+    id:'c'+Date.now()+Math.random().toString(36).slice(2,7),
+    pageId:SITE, cid:'general', label:'General site-wide feedback', author:getName(), text, ts:Date.now(), resolved:false
+  });
+  inputEl.value = '';
+  saveComments();
+  updateCountBadge();
+  renderCommentPanel();
+}
+function resolveThread(pageId, cid, resolved){
+  COMMENTS.forEach(c=>{ if(c.pageId===pageId && c.cid===cid) c.resolved = resolved; });
+  saveComments();
+  refreshPins();
+  updateCountBadge();
+  renderCommentPanel();
+}
+function deleteComment(id){
+  if(!confirm('Delete this comment?')) return;
+  COMMENTS = COMMENTS.filter(c=>c.id!==id);
+  saveComments();
+  refreshPins();
+  updateCountBadge();
+  renderCommentPanel();
+}
+function toggleCommentPanel(force){
+  panelOpen = (force!==undefined) ? force : !panelOpen;
+  document.getElementById('commentPanel').classList.toggle('open', panelOpen);
+  if(panelOpen) renderCommentPanel();
+}
+function threadElId(pageId, cid){ return 'thread-' + pageId + '--' + cid; }
+function scrollToThread(pageId, cid){
+  setTimeout(()=>{
+    const t = document.getElementById(threadElId(pageId, cid));
+    if(t){
+      t.scrollIntoView({behavior:'smooth', block:'center'});
+      t.style.outline = '2px solid var(--accent)';
+      setTimeout(()=>{ t.style.outline=''; }, 900);
+    }
+  }, 60);
+}
+function threadHtml(pageId, cid, list){
+  list = list.slice().sort((a,b)=>a.ts-b.ts);
+  const resolved = list.every(c=>c.resolved);
+  const label = list[0].label || cid;
+  const jumpable = !(pageId===SITE && cid==='general'); // general has no body anchor
+  let html = `<div class="thread ${resolved?'resolved':''}" id="${threadElId(pageId,cid)}">
+      <div class="target" ${jumpable?`onclick="jumpToThread('${pageId}','${cid}')" title="Jump to this section"`:''}>
+        <span>${escapeHtml(label)}</span>${jumpable?'<span class="jump">↧ jump</span>':''}
+      </div>`;
+  list.forEach(c=>{
+    html += `<div class="c-item">
+        <span class="c-author">${escapeHtml(c.author)}</span><span class="c-time">${new Date(c.ts).toLocaleString()}</span>
+        <div class="c-text">${escapeHtml(c.text)}</div>
+        <span class="c-del" onclick="deleteComment('${c.id}')">delete</span>
+      </div>`;
+  });
+  html += `<div class="reply-box">
+      <input type="text" placeholder="Reply…" onkeydown="if(event.key==='Enter'){replyTo('${pageId}','${cid}','${attrSafe(label)}',this)}">
+      <button class="cbtn" onclick="replyTo('${pageId}','${cid}','${attrSafe(label)}', this.previousElementSibling)">Reply</button>
+    </div>
+    <div class="resolve-row">
+      <button class="cbtn" onclick="resolveThread('${pageId}','${cid}',${!resolved})">${resolved?'Reopen':'Mark resolved'}</button>
+    </div>
+  </div>`;
+  return html;
+}
+function setPanelFilter(f){ PANEL_FILTER = f; renderCommentPanel(); }
+function passesFilter(list){
+  if(PANEL_FILTER==='open') return list.some(c=>!c.resolved);
+  if(PANEL_FILTER==='mine'){ const me=getName(); return list.some(c=>c.author===me); }
+  return true;
+}
+function renderCommentPanel(){
+  const panel = document.getElementById('commentPanel');
+  const pageId = currentPageId;
+  const siteThreads = threadsFor(SITE);
+  const pageThreads = threadsFor(pageId);
+  const pageCids = Object.keys(pageThreads);
+
+  const chip = (id,label)=>`<span class="cp-chip ${PANEL_FILTER===id?'on':''}" onclick="setPanelFilter('${id}')">${label}</span>`;
+
+  let inner = `<div class="cp-head">
+      <h3 style="margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.06em;">Comments</h3>
+      <span class="cp-close" onclick="toggleCommentPanel(false)" title="Close (Esc)">✕</span>
+    </div>
+    <div class="cp-name">Commenting as <b>${escapeHtml(getName())}</b> — <a onclick="changeName()">change</a> <span class="cp-esc-hint">· Esc to close</span></div>
+    <div class="cp-filterbar">${chip('all','All')}${chip('open','Open only')}${chip('mine','Mine')}</div>`;
+
+  // Site-wide section
+  inner += `<div class="cp-section-title">🌐 Site-wide — not tied to one page</div>`;
+  let siteShown = 0;
+  if(siteThreads['nav'] && passesFilter(siteThreads['nav'])){ inner += threadHtml(SITE, 'nav', siteThreads['nav']); siteShown++; }
+  if(siteThreads['general'] && passesFilter(siteThreads['general'])){ inner += threadHtml(SITE, 'general', siteThreads['general']); siteShown++; }
+  if(siteShown===0){ inner += `<p class="cp-empty" style="margin-top:0">No site-wide comments${PANEL_FILTER!=='all'?' match this filter':' yet'}.</p>`; }
+  inner += `<div class="site-composer">
+      <textarea placeholder="General feedback on the whole site — not about a specific page or section…"></textarea>
+      <div class="row"><button class="cbtn active" type="button" onclick="addSiteComment(this.closest('.site-composer').querySelector('textarea'))">Post site-wide comment</button></div>
+    </div>`;
+
+  // This page section
+  inner += `<div class="cp-section-title">📄 This page — ${escapeHtml(PAGES[pageId] ? PAGES[pageId].title : pageId)}</div>`;
+  const shownCids = pageCids.filter(cid=>passesFilter(pageThreads[cid]));
+  if(shownCids.length===0){
+    inner += `<p class="cp-empty">No comments on this page${PANEL_FILTER!=='all'?' match this filter':' yet. Hover any section and click the + that appears'}.</p>`;
+  }
+  shownCids.forEach(cid=>{ inner += threadHtml(pageId, cid, pageThreads[cid]); });
+
+  // Other pages (only when filtering, so you can act across the whole site)
+  if(PANEL_FILTER!=='all'){
+    const otherPages = {};
+    COMMENTS.forEach(c=>{
+      if(c.pageId===SITE || c.pageId===pageId) return;
+      (otherPages[c.pageId] = otherPages[c.pageId]||{});
+      (otherPages[c.pageId][c.cid] = otherPages[c.pageId][c.cid]||[]).push(c);
+    });
+    const otherIds = Object.keys(otherPages);
+    let anyOther = false;
+    let otherHtml = '';
+    otherIds.forEach(pid=>{
+      const cids = Object.keys(otherPages[pid]).filter(cid=>passesFilter(otherPages[pid][cid]));
+      if(cids.length===0) return;
+      anyOther = true;
+      otherHtml += `<div class="cp-section-title" style="opacity:.8">↪ ${escapeHtml(PAGES[pid]?PAGES[pid].title:pid)}</div>`;
+      cids.forEach(cid=>{ otherHtml += threadHtml(pid, cid, otherPages[pid][cid]); });
+    });
+    if(anyOther){ inner += `<div style="margin-top:8px;border-top:2px dashed var(--grey3);padding-top:4px;">${otherHtml}</div>`; }
+  }
+
+  panel.innerHTML = `<div class="cp-inner">${inner}</div>`;
+}
+function copySummary(){
+  let out = `Codup Wireframes — Comment Summary (${new Date().toLocaleString()})\n\n`;
+  const byPage = {};
+  COMMENTS.forEach(c=>{ (byPage[c.pageId] = byPage[c.pageId] || []).push(c); });
+  const pageIds = Object.keys(byPage).sort((a,b)=> (a===SITE?-1:b===SITE?1:0));
+  pageIds.forEach(pid=>{
+    const heading = pid===SITE ? 'GENERAL / SITE-WIDE (top nav + general feedback)' : `${PAGES[pid] ? PAGES[pid].title : pid} (${PAGES[pid] ? PAGES[pid].url : ''})`;
+    out += `== ${heading} ==\n`;
+    const threads = {};
+    byPage[pid].forEach(c=>{ (threads[c.cid] = threads[c.cid] || []).push(c); });
+    Object.values(threads).forEach(list=>{
+      list.sort((a,b)=>a.ts-b.ts);
+      out += `- [${list[0].label}]${list.every(c=>c.resolved) ? ' (resolved)' : ''}\n`;
+      list.forEach(c=>{ out += `    ${c.author}: ${c.text}\n`; });
+    });
+    out += `\n`;
+  });
+  if(COMMENTS.length===0){ out += '(no comments yet)\n'; }
+  navigator.clipboard.writeText(out).then(
+    ()=>alert('Comment summary copied to clipboard — paste it into an email or Slack.'),
+    ()=>alert(out)
+  );
+}
+function timestampForFilename(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'_'+pad(d.getHours())+pad(d.getMinutes());
+}
+function exportCommented(){
+  const exportedBy = getName();
+  // Clean transient UI state so it isn't baked into the exported file
+  clearSearch();
+  document.querySelectorAll('.comment-form').forEach(f=>f.remove());
+  document.querySelectorAll('.flash-target').forEach(e=>e.classList.remove('flash-target'));
+  const seed = document.getElementById('comments-seed');
+  seed.textContent = JSON.stringify(COMMENTS);
+  const meta = document.getElementById('export-meta');
+  meta.textContent = JSON.stringify({ exportedAt: Date.now(), exportedBy });
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Codup_Wireframes_with_comments_' + timestampForFilename() + '.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ============================================================
+   GLOBAL SEARCH — searches page copy (body + meta) AND all comments
+   ============================================================ */
+function buildSearchIndex(){
+  // one-time index of every page's visible text, keyed by pageId + section cid,
+  // so a hit can deep-link to the exact section. Built by rendering each page's
+  // body/meta HTML into a detached container and walking the instrumented blocks.
+  if(window.__searchIndex) return window.__searchIndex;
+  const idx = [];
+  Object.keys(PAGES).forEach(pid=>{
+    const p = PAGES[pid];
+    const tmp = document.createElement('div');
+    tmp.innerHTML = p.body + metaPanel(p.meta);
+    let bi=0, mi=0;
+    tmp.querySelectorAll('.wf-block:not([data-nav="1"]), .meta-card, .navmock-wrap[data-nav="1"]').forEach(el=>{
+      let cid, targetPid=pid;
+      if(el.classList.contains('navmock-wrap')){ cid='nav'; targetPid=SITE; }
+      else if(el.classList.contains('meta-card')){ cid='m'+(mi++); }
+      else { cid='b'+(bi++); }
+      const labelEl = el.querySelector('.wf-label, h5');
+      const label = labelEl ? labelEl.textContent.trim() : 'Section';
+      const text = el.textContent.replace(/\s+/g,' ').trim();
+      idx.push({ pageId:targetPid, homePage:pid, cid, label, text, title:p.title });
+    });
+  });
+  window.__searchIndex = idx;
+  return idx;
+}
+function openSearch(){ document.getElementById('searchResults').classList.add('open'); }
+function closeSearch(){ const r=document.getElementById('searchResults'); if(r) r.classList.remove('open'); }
+function clearSearch(){
+  SEARCH_Q='';
+  const gs=document.getElementById('globalSearch'); if(gs) gs.value='';
+  const w=document.getElementById('searchWrap'); if(w) w.classList.remove('has-q');
+  const box=document.getElementById('searchResults'); if(box) box.innerHTML='';
+  closeSearch();
+  clearBodyHighlights();
+}
+function clearBodyHighlights(){
+  document.querySelectorAll('#page .search-hit').forEach(e=>e.classList.remove('search-hit'));
+  document.querySelectorAll('#page mark').forEach(m=>{ const t=document.createTextNode(m.textContent); m.replaceWith(t); });
+}
+function escapeRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function snippet(text, q){
+  const i = text.toLowerCase().indexOf(q.toLowerCase());
+  if(i<0) return escapeHtml(text.slice(0,120));
+  const start = Math.max(0, i-40), end = Math.min(text.length, i+q.length+60);
+  let s = (start>0?'…':'') + text.slice(start,end) + (end<text.length?'…':'');
+  const re = new RegExp('('+escapeRe(q)+')','ig');
+  return escapeHtml(s).replace(re, '<mark>$1</mark>');
+}
+function runSearch(q){
+  SEARCH_Q = q.trim();
+  const wrap = document.getElementById('searchWrap');
+  wrap.classList.toggle('has-q', !!SEARCH_Q);
+  const box = document.getElementById('searchResults');
+  clearBodyHighlights();
+  if(!SEARCH_Q){ closeSearch(); return; }
+  if(SEARCH_Q.length<2){ box.innerHTML = `<div class="sr-empty">Keep typing…</div>`; openSearch(); return; }
+
+  const ql = SEARCH_Q.toLowerCase();
+  // --- comment hits ---
+  const commentHits = COMMENTS.filter(c=> c.text.toLowerCase().includes(ql) || (c.author||'').toLowerCase().includes(ql));
+  // --- body/meta hits ---
+  const idx = buildSearchIndex();
+  const bodyHits = idx.filter(x=> x.text.toLowerCase().includes(ql));
+
+  let html = '';
+  if(commentHits.length){
+    html += `<div class="sr-group-title">Comments (${commentHits.length})</div>`;
+    commentHits.slice(0,40).forEach(c=>{
+      const pg = c.pageId===SITE ? 'Site-wide' : (PAGES[c.pageId]?PAGES[c.pageId].title:c.pageId);
+      html += `<div class="sr-item" onclick="gotoCommentHit('${c.pageId}','${c.cid}')">
+        <span class="sr-page">${escapeHtml(pg)}</span><span class="sr-kind">comment · ${escapeHtml(c.label)}</span>
+        <div class="sr-snip"><b>${escapeHtml(c.author)}:</b> ${snippet(c.text, SEARCH_Q)}</div>
+      </div>`;
+    });
+  }
+  if(bodyHits.length){
+    html += `<div class="sr-group-title">Page content (${bodyHits.length})</div>`;
+    bodyHits.slice(0,40).forEach(x=>{
+      html += `<div class="sr-item" onclick="gotoBodyHit('${x.homePage}','${x.pageId}','${x.cid}')">
+        <span class="sr-page">${escapeHtml(x.title)}</span><span class="sr-kind">${escapeHtml(x.label)}</span>
+        <div class="sr-snip">${snippet(x.text, SEARCH_Q)}</div>
+      </div>`;
+    });
+  }
+  if(!commentHits.length && !bodyHits.length){ html = `<div class="sr-empty">No matches for “${escapeHtml(SEARCH_Q)}”.</div>`; }
+  box.innerHTML = html;
+  openSearch();
+  // live-highlight matches on the current page body
+  highlightBodyMatches(SEARCH_Q);
+}
+function gotoCommentHit(pageId, cid){
+  closeSearch();
+  toggleCommentPanel(true);
+  // jump the body to the section too (nav/general handled inside jumpToThread)
+  jumpToThread(pageId, cid);
+  // and flash the thread in the panel
+  setTimeout(()=>scrollToThread(pageId===SITE?SITE:pageId, cid), 120);
+}
+function gotoBodyHit(homePage, pageId, cid){
+  closeSearch();
+  if(homePage!==currentPageId){ PENDING_SCROLL = {pageId: (pageId===SITE?SITE:homePage), cid}; nav(homePage); }
+  else { scrollToSection(pageId===SITE?SITE:homePage, cid); }
+}
+function highlightBodyMatches(q){
+  if(!q || q.length<2) return;
+  clearBodyHighlights();
+  const ql = q.toLowerCase();
+  document.querySelectorAll('#page [data-cid]').forEach(el=>{
+    if(el.textContent.toLowerCase().includes(ql)) el.classList.add('search-hit');
+  });
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   Esc  -> close panel/search   C -> toggle comments
+   \\   -> toggle left nav      / or Cmd/Ctrl-K -> focus search
+   ============================================================ */
+function isTyping(e){
+  const t=e.target, tag=(t.tagName||'').toLowerCase();
+  return tag==='input' || tag==='textarea' || t.isContentEditable;
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('searchResults')?.classList.contains('open')){ closeSearch(); return; }
+    if(panelOpen){ toggleCommentPanel(false); return; }
+    document.querySelectorAll('.comment-form').forEach(f=>f.remove());
+    return;
+  }
+  if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); document.getElementById('globalSearch')?.focus(); return; }
+  if(isTyping(e)) return; // don't hijack letters while typing a comment
+  if(e.key==='/'){ e.preventDefault(); document.getElementById('globalSearch')?.focus(); }
+  else if(e.key.toLowerCase()==='c'){ toggleCommentPanel(); }
+  else if(e.key==='\\'){ toggleNav(); }
+});
+// clicking outside the search box closes the dropdown
+document.addEventListener('click', (e)=>{
+  const w=document.getElementById('searchWrap');
+  if(w && !w.contains(e.target)) closeSearch();
+});
+
+function initChrome(){
+  // Self-heal: the panel must be a flex child of .app to render as a right-side
+  // drawer. Older exported snapshots placed it as a sibling of .app (which made
+  // it drop to the bottom). Move it back inside if needed.
+  const app = document.getElementById('app');
+  const panel = document.getElementById('commentPanel');
+  if(app && panel && panel.parentElement !== app){ app.appendChild(panel); }
+  try{ navHidden = localStorage.getItem(NAV_KEY)==='1'; }catch(e){}
+  document.getElementById('app').classList.toggle('nav-hidden', navHidden);
+}
+
+loadComments();
+window.addEventListener('hashchange', route);
+window.addEventListener('DOMContentLoaded', ()=>{ initChrome(); route(); });
+initChrome();
+route();
+</script>
+
+
+</body></html>
